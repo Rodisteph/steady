@@ -14,7 +14,7 @@ final class StoreManager {
     private(set) var isLoading = false
     private(set) var errorMessage: String?
     
-    private var transactionListener: Task<Void, Error>?
+    nonisolated(unsafe) private var transactionListener: Task<Void, Error>?
     
     init() {
         self.isPremium = UserDefaults.standard.bool(forKey: "steady_premium_unlocked")
@@ -101,7 +101,8 @@ final class StoreManager {
     }
     
     private func listenForTransactions() -> Task<Void, Error> {
-        Task.detached {
+        Task.detached { [weak self] in
+            guard let self else { return }
             for await result in Transaction.updates {
                 do {
                     let transaction = try self.checkVerified(result)
@@ -119,7 +120,7 @@ final class StoreManager {
         }
     }
     
-    private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
+    nonisolated private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
         switch result {
         case .unverified(_, let error):
             throw error
@@ -136,4 +137,3 @@ final class StoreManager {
         isPremium
     }
 }
-

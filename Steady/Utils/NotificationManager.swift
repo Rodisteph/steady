@@ -44,21 +44,22 @@ final class NotificationManager {
     }
     
     func checkAuthorizationStatus() {
-        center.getNotificationSettings { settings in
-            DispatchQueue.main.async {
-                self.authorizationStatus = settings.authorizationStatus
-            }
+        Task {
+            let settings = await center.notificationSettings()
+            self.authorizationStatus = settings.authorizationStatus
         }
     }
     
     func requestAuthorization() {
-        center.requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
-            DispatchQueue.main.async {
-                self.checkAuthorizationStatus()
+        Task {
+            do {
+                let granted = try await center.requestAuthorization(options: [.alert, .badge, .sound])
+                let settings = await center.notificationSettings()
+                self.authorizationStatus = settings.authorizationStatus
                 if granted {
                     self.rescheduleAll(premium: false)
                 }
-            }
+            } catch {}
         }
     }
     
