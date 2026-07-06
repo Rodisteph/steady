@@ -27,7 +27,7 @@ Le code pointe déjà vers `https://rodisteph.github.io/steady/...`. Il reste à
 La config locale fonctionne en test ; côté production il faut le créer réellement :
 - [ ] App Store Connect → ton app → **Monétisation → Achats intégrés → +**
 - [ ] Type : **Non consommable**
-- [ ] **Product ID exact** : `com.yourcompany.steady.premium.unlock`
+- [x] **Product ID exact** : `com.rodrigo.steady.premium`
       (identique à `Steady/Store/StoreManager.swift:7` et à `Configuration.storekit`)
 - [ ] Renseigne prix (ex : 3,99 €), nom affiché « Steady Premium », description, capture de la fiche
 - [ ] Teste l'achat + la restauration avec un compte **Sandbox**
@@ -36,14 +36,39 @@ La config locale fonctionne en test ; côté production il faut le créer réell
 - [ ] Nom, sous-titre, description, mots-clés, catégorie (Productivité / Style de vie)
 - [x] **Captures 6,9"** prêtes dans `AppStore/screenshots/` (téléverse-les ; ajoute la taille 6,5" si demandée)
 - [ ] URL de support
-- [ ] Section « Confidentialité de l'app » (App Privacy) : déclare **« Aucune donnée collectée »**
-      (cohérent avec le manifeste et `PRIVACY.md`)
+- [ ] Section « Confidentialité de l'app » (App Privacy) : ~~« Aucune donnée collectée »~~
+      **OBSOLÈTE depuis l'ajout d'AdMob** — voir la section AdMob ci-dessous
 - [ ] Classification d'âge (probablement 4+)
 
 ### 4. Build & signature
 - [ ] `DEVELOPMENT_TEAM` déjà défini (`V3BB9YS6N2`) — vérifie le provisioning
 - [ ] Incrémente `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` à chaque upload
 - [ ] Archive (`Product > Archive`) puis distribue via Xcode Organizer ou Transporter
+
+### 5. AdMob — pub récompensée « Premium 24 h » (code déjà en place)
+
+Le code (SDK SPM, `RewardedAdManager`, UMP, Info.plist avec App ID de TEST) est
+déjà intégré. Il reste les étapes console, impossibles sans ton compte :
+
+- [ ] **Créer le compte AdMob** : https://admob.google.com (compte Google + acceptation
+      des conditions + infos de paiement)
+- [ ] AdMob → **Applications → Ajouter une application** → iOS → lier à Steady
+      (app publiée ou « non publiée » en attendant)
+- [ ] Copier l'**App ID** (format `ca-app-pub-XXXX~YYYY`) → remplacer la valeur de TEST
+      dans `Steady/Info.plist` (clé `GADApplicationIdentifier`)
+- [ ] Créer un **bloc d'annonces « Avec récompense »** → copier l'**ad unit ID**
+      (format `ca-app-pub-XXXX/ZZZZ`) → remplacer le placeholder `#else` (prod)
+      dans `Steady/Services/RewardedAdManager.swift`
+- [ ] AdMob → **Confidentialité et messages → RGPD** : créer et **publier** le message
+      de consentement UMP (sinon `loadAndPresentIfRequired` échoue en Europe)
+- [ ] App Store Connect → fiche app → **« Cette app contient des publicités » : OUI**
+- [ ] App Store Connect → **App Privacy** : déclarer en plus des données Communauté :
+      **Identifiants** (ID d'appareil), **Données d'utilisation** (interactions pub),
+      **Diagnostic** — finalité « Publicité par des tiers » (labels incomplets = rejet)
+- [ ] `git push origin main` pour publier la politique de confidentialité mise à jour
+      (commit `ace6f3a` déjà prêt localement)
+- [ ] Tester : en DEBUG l'ID de test Google sert de vraies pubs de démo — vérifier
+      bouton grisé → pub → « Premium actif jusqu'à HH:MM » → expiration le lendemain
 
 ## 💡 Recommandé (qualité)
 

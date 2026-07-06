@@ -1,0 +1,66 @@
+rules_version = '2';
+
+// Règles de sécurité Firestore pour Steady.
+// À coller dans la console Firebase : Firestore Database → Règles → Publier.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Profils publics : lisibles par tout utilisateur connecté (nécessaire
+    // pour la recherche de pseudo), modifiables uniquement par leur propriétaire.
+    match /users/{userId} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == userId;
+
+      // Arêtes d'amitié : écrites des deux côtés lors de l'acceptation,
+      // donc chacun des deux amis peut créer/supprimer l'arête.
+      match /friends/{friendId} {
+        allow read: if signedIn() && request.auth.uid == userId;
+        allow write, delete: if signedIn()
+          && (request.auth.uid == userId || request.auth.uid == friendId);
+      }
+
+      // Demandes d'ami : je lis/supprime les miennes ; l'expéditeur crée
+      // un document dont l'identifiant est son propre uid.
+      match /requests/{fromId} {
+        allow read, delete: if signedIn() && request.auth.uid == userId;
+        allow create: if signedIn() && request.auth.uid == fromId;
+      }
+
+      // Encouragements : n'importe quel connecté peut en déposer un.
+      match /cheers/{cheerId} {
+        allow read, delete: if signedIn() && request.auth.uid == userId;
+        allow create: if signedIn();
+      }
+
+      // Invitations à des défis : même logique que les demandes d'ami.
+      match /challengeInvites/{challengeId} {
+        allow read, delete: if signedIn() && request.auth.uid == userId;
+        allow create: if signedIn();
+      }
+    }
+
+    // Défis partagés entre amis. Lecture/mise à jour ouvertes aux connectés :
+    // un invité doit pouvoir s'ajouter aux membres en acceptant. Les données
+    // ne contiennent que pseudo + progression (rien de sensible).
+    match /sharedChallenges/{challengeId} {
+      allow create: if signedIn();
+      allow read, update: if signedIn();
+      allow delete: if signedIn() && request.auth.uid == resource.data.ownerUID;
+    }
+
+    // Groupes : réservés à leurs membres.
+    match /groups/{groupId} {
+      allow create: if signedIn();
+      allow read, update: if signedIn() && request.auth.uid in resource.data.members;
+
+      match /messages/{messageId} {
+        allow read, create: if signedIn()
+          && request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.members;
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Xcode — état utilisateur (positions de fenêtres, etc.) : jamais versionné
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad
+
+# Produits de compilation
+build/
+DerivedData/
+
+# Secrets / configuration locale
+Steady/GoogleService-Info.plist
+
+# Documents hors code
+*.pdf

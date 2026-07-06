@@ -5,23 +5,23 @@
   ],
   "products" : [
     {
-      "displayPrice" : "3.99",
+      "displayPrice" : "39.99",
       "familyShareable" : false,
       "internalID" : "222AE1B3-4581-4ACA-A1A8-644DAF168355",
       "localizations" : [
         {
-          "description" : "Débloque les habitudes illimitées, les rappels par habitude et les statistiques avancées.",
-          "displayName" : "Steady Premium",
+          "description" : "Débloque tout Steady à vie, en un seul paiement.",
+          "displayName" : "Steady Premium à vie",
           "locale" : "fr_FR"
         },
         {
-          "description" : "Unlock unlimited habits, per-habit reminders and advanced statistics.",
-          "displayName" : "Steady Premium",
+          "description" : "Unlock all of Steady forever, with a single payment.",
+          "displayName" : "Steady Premium Lifetime",
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.yourcompany.steady.premium.unlock",
-      "referenceName" : "Steady Premium",
+      "productID" : "com.rodrigo.steady.premium",
+      "referenceName" : "Steady Premium à vie",
       "type" : "NonConsumable"
     }
   ],
@@ -37,7 +37,75 @@
     ]
   },
   "subscriptionGroups" : [
+    {
+      "id" : "7E394280-8372-4198-BF2A-D71D17EF2255",
+      "localizations" : [
 
+      ],
+      "name" : "Steady Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "3.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "8B60B2D1-44A9-4F0E-AF65-943E55DF17FC",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Tout Steady, facturé chaque mois.",
+              "displayName" : "Premium Mensuel",
+              "locale" : "fr_FR"
+            },
+            {
+              "description" : "All of Steady, billed monthly.",
+              "displayName" : "Premium Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.rodrigo.steady.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Premium Mensuel",
+          "subscriptionGroupID" : "7E394280-8372-4198-BF2A-D71D17EF2255",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "19.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "2E1F3F84-8C87-42A2-A223-7301081CA75B",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Tout Steady, facturé chaque année. 7 jours d'essai gratuit.",
+              "displayName" : "Premium Annuel",
+              "locale" : "fr_FR"
+            },
+            {
+              "description" : "All of Steady, billed yearly. 7-day free trial.",
+              "displayName" : "Premium Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.rodrigo.steady.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Premium Annuel",
+          "subscriptionGroupID" : "7E394280-8372-4198-BF2A-D71D17EF2255",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
   ],
   "version" : {
     "major" : 4,

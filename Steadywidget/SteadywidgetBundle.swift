@@ -12,6 +12,5 @@ import SwiftUI
 struct SteadywidgetBundle: WidgetBundle {
     var body: some Widget {
         Steadywidget()
-        SteadywidgetControl()
     }
 }

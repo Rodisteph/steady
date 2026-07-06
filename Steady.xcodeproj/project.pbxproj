@@ -6,31 +6,145 @@
 	objectVersion = 110;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0B10B8C02FF108FB00E271D6 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B10B8AF2FF1088100E271D6 /* WidgetKit.framework */; };
+		0B10B8C12FF108FB00E271D6 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B10B8B12FF1088100E271D6 /* SwiftUI.framework */; };
+		0B10B8CE2FF108FF00E271D6 /* SteadywidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0B10B8BF2FF108FB00E271D6 /* SteadywidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0B10BBEC2FF268EB00E271D6 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 0B10BBEB2FF268EB00E271D6 /* FirebaseAuth */; };
+		0B10BBEE2FF268F600E271D6 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 0B10BBED2FF268F600E271D6 /* FirebaseFirestore */; };
+		0BADB0B52FF4000000000003 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 0BADB0B52FF4000000000002 /* GoogleMobileAds */; };
+		0B10BCAC2FF31D1A00E271D6 /* SteadyWatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 0B10BCA22FF31D0B00E271D6 /* SteadyWatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0B10B8CC2FF108FF00E271D6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0B4A7E762FF00C710087B497 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0B10B8BE2FF108FB00E271D6;
+			remoteInfo = SteadywidgetExtension;
+		};
+		0B10BCAA2FF31D1A00E271D6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0B4A7E762FF00C710087B497 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0B10BCA12FF31D0B00E271D6;
+			remoteInfo = "SteadyWatch Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0B10B8BA2FF1088100E271D6 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "";
+			dstSubfolder = PlugIns;
+			files = (
+				0B10B8CE2FF108FF00E271D6 /* SteadywidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+		};
+		0B10BCB02FF31D1A00E271D6 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolder = Product;
+			files = (
+				0B10BCAC2FF31D1A00E271D6 /* SteadyWatch Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		0B10B8AF2FF1088100E271D6 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		0B10B8B12FF1088100E271D6 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		0B10B8BF2FF108FB00E271D6 /* SteadywidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SteadywidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		0B10B8D42FF109CC00E271D6 /* SteadywidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SteadywidgetExtension.entitlements; sourceTree = "<group>"; };
+		0B10BCA22FF31D0B00E271D6 /* SteadyWatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SteadyWatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B4A7E7E2FF00C710087B497 /* Steady.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Steady.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0B10B8CF2FF108FF00E271D6 /* Exceptions for "Steadywidget" folder in "SteadywidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0B10B8BE2FF108FB00E271D6 /* SteadywidgetExtension */;
+		};
+		0B10BBF62FF2B67B00E271D6 /* Exceptions for "Steady" folder in "Steady" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0B4A7E7D2FF00C710087B497 /* Steady */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		0B10B8C22FF108FB00E271D6 /* Steadywidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0B10B8CF2FF108FF00E271D6 /* Exceptions for "Steadywidget" folder in "SteadywidgetExtension" target */,
+			);
+			path = Steadywidget;
+			sourceTree = "<group>";
+		};
+		0B10BCA32FF31D0C00E271D6 /* SteadyWatch Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "SteadyWatch Watch App";
+			sourceTree = "<group>";
+		};
 		0B4A7E802FF00C710087B497 /* Steady */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0B10BBF62FF2B67B00E271D6 /* Exceptions for "Steady" folder in "Steady" target */,
+			);
 			path = Steady;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		0B10B8BC2FF108FB00E271D6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+				0B10B8C12FF108FB00E271D6 /* SwiftUI.framework in Frameworks */,
+				0B10B8C02FF108FB00E271D6 /* WidgetKit.framework in Frameworks */,
+			);
+		};
+		0B10BC9F2FF31D0B00E271D6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
 		0B4A7E7B2FF00C710087B497 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				0B10BBEC2FF268EB00E271D6 /* FirebaseAuth in Frameworks */,
+				0B10BBEE2FF268F600E271D6 /* FirebaseFirestore in Frameworks */,
+				0BADB0B52FF4000000000003 /* GoogleMobileAds in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0B10B8AE2FF1088100E271D6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0B10B8AF2FF1088100E271D6 /* WidgetKit.framework */,
+				0B10B8B12FF1088100E271D6 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		0B4A7E752FF00C710087B497 = {
 			isa = PBXGroup;
 			children = (
+				0B10B8D42FF109CC00E271D6 /* SteadywidgetExtension.entitlements */,
 				0B4A7E802FF00C710087B497 /* Steady */,
+				0B10B8C22FF108FB00E271D6 /* Steadywidget */,
+				0B10BCA32FF31D0C00E271D6 /* SteadyWatch Watch App */,
+				0B10B8AE2FF1088100E271D6 /* Frameworks */,
 				0B4A7E7F2FF00C710087B497 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -39,6 +153,8 @@
 			isa = PBXGroup;
 			children = (
 				0B4A7E7E2FF00C710087B497 /* Steady.app */,
+				0B10B8BF2FF108FB00E271D6 /* SteadywidgetExtension.appex */,
+				0B10BCA22FF31D0B00E271D6 /* SteadyWatch Watch App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -46,6 +162,42 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		0B10B8BE2FF108FB00E271D6 /* SteadywidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0B10B8D02FF108FF00E271D6 /* Build configuration list for PBXNativeTarget "SteadywidgetExtension" */;
+			buildPhases = (
+				0B10B8BB2FF108FB00E271D6 /* Sources */,
+				0B10B8BC2FF108FB00E271D6 /* Frameworks */,
+				0B10B8BD2FF108FB00E271D6 /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				0B10B8C22FF108FB00E271D6 /* Steadywidget */,
+			);
+			name = SteadywidgetExtension;
+			productName = SteadywidgetExtension;
+			productReference = 0B10B8BF2FF108FB00E271D6 /* SteadywidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		0B10BCA12FF31D0B00E271D6 /* SteadyWatch Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0B10BCAD2FF31D1A00E271D6 /* Build configuration list for PBXNativeTarget "SteadyWatch Watch App" */;
+			buildPhases = (
+				0B10BC9E2FF31D0B00E271D6 /* Sources */,
+				0B10BC9F2FF31D0B00E271D6 /* Frameworks */,
+				0B10BCA02FF31D0B00E271D6 /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				0B10BCA32FF31D0C00E271D6 /* SteadyWatch Watch App */,
+			);
+			name = "SteadyWatch Watch App";
+			productName = "SteadyWatch Watch App";
+			productReference = 0B10BCA22FF31D0B00E271D6 /* SteadyWatch Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
 		0B4A7E7D2FF00C710087B497 /* Steady */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0B4A7E892FF00C740087B497 /* Build configuration list for PBXNativeTarget "Steady" */;
@@ -53,13 +205,24 @@
 				0B4A7E7A2FF00C710087B497 /* Sources */,
 				0B4A7E7B2FF00C710087B497 /* Frameworks */,
 				0B4A7E7C2FF00C710087B497 /* Resources */,
+				0B10B8BA2FF1088100E271D6 /* Embed Foundation Extensions */,
+				0B10BCB02FF31D1A00E271D6 /* Embed Watch Content */,
 			);
 			buildRules = (
+			);
+			dependencies = (
+				0B10B8CD2FF108FF00E271D6 /* PBXTargetDependency */,
+				0B10BCAB2FF31D1A00E271D6 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				0B4A7E802FF00C710087B497 /* Steady */,
 			);
 			name = Steady;
+			packageProductDependencies = (
+				0B10BBEB2FF268EB00E271D6 /* FirebaseAuth */,
+				0B10BBED2FF268F600E271D6 /* FirebaseFirestore */,
+				0BADB0B52FF4000000000002 /* GoogleMobileAds */,
+			);
 			productName = Steady;
 			productReference = 0B4A7E7E2FF00C710087B497 /* Steady.app */;
 			productType = "com.apple.product-type.application";
@@ -74,31 +237,56 @@
 				LastSwiftUpdateCheck = 2700;
 				LastUpgradeCheck = 2700;
 				TargetAttributes = {
+					0B10B8BE2FF108FB00E271D6 = {
+						CreatedOnToolsVersion = 27.0;
+					};
+					0B10BCA12FF31D0B00E271D6 = {
+						CreatedOnToolsVersion = 27.0;
+					};
 					0B4A7E7D2FF00C710087B497 = {
 						CreatedOnToolsVersion = 27.0;
 					};
 				};
 			};
 			buildConfigurationList = 0B4A7E792FF00C710087B497 /* Build configuration list for PBXProject "Steady" */;
-			developmentRegion = en;
+			developmentRegion = fr;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				fr,
+				es,
+				pt,
 				Base,
 			);
 			mainGroup = 0B4A7E752FF00C710087B497;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0B10BBEA2FF2682B00E271D6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				0BADB0B52FF4000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0B4A7E7F2FF00C710087B497 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				0B4A7E7D2FF00C710087B497 /* Steady */,
+				0B10B8BE2FF108FB00E271D6 /* SteadywidgetExtension */,
+				0B10BCA12FF31D0B00E271D6 /* SteadyWatch Watch App */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0B10B8BD2FF108FB00E271D6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		0B10BCA02FF31D0B00E271D6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
 		0B4A7E7C2FF00C710087B497 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
@@ -107,6 +295,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0B10B8BB2FF108FB00E271D6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		0B10BC9E2FF31D0B00E271D6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 		0B4A7E7A2FF00C710087B497 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
@@ -114,7 +312,150 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		0B10B8CD2FF108FF00E271D6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0B10B8BE2FF108FB00E271D6 /* SteadywidgetExtension */;
+			targetProxy = 0B10B8CC2FF108FF00E271D6 /* PBXContainerItemProxy */;
+		};
+		0B10BCAB2FF31D1A00E271D6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0B10BCA12FF31D0B00E271D6 /* SteadyWatch Watch App */;
+			targetProxy = 0B10BCAA2FF31D1A00E271D6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		0B10B8D12FF108FF00E271D6 /* Debug configuration for PBXNativeTarget "SteadywidgetExtension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = SteadywidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 15;
+				DEVELOPMENT_TEAM = V3BB9YS6N2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Steadywidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Steadywidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = Rodrigo.Steady.Steadywidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		0B10B8D22FF108FF00E271D6 /* Release configuration for PBXNativeTarget "SteadywidgetExtension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = SteadywidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 15;
+				DEVELOPMENT_TEAM = V3BB9YS6N2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Steadywidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Steadywidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = Rodrigo.Steady.Steadywidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		0B10BCAE2FF31D1A00E271D6 /* Debug configuration for PBXNativeTarget "SteadyWatch Watch App" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V3BB9YS6N2;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = SteadyWatch;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = Rodrigo.Steady;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = Rodrigo.Steady.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
+			};
+			name = Debug;
+		};
+		0B10BCAF2FF31D1A00E271D6 /* Release configuration for PBXNativeTarget "SteadyWatch Watch App" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V3BB9YS6N2;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = SteadyWatch;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = Rodrigo.Steady;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = Rodrigo.Steady.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
+			};
+			name = Release;
+		};
 		0B4A7E872FF00C740087B497 /* Debug configuration for PBXProject "Steady" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -168,7 +509,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -226,7 +567,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -241,12 +582,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Steady/Steady.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = V3BB9YS6N2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Steady/Info.plist;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Steady lit l'eau, la méditation et les pas pour valider automatiquement vos habitudes.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Steady n'écrit aucune donnée dans Santé ; cette autorisation est requise par le système car l'app accède à HealthKit.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -256,15 +601,16 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = Rodrigo.Steady;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -274,12 +620,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Steady/Steady.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = V3BB9YS6N2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Steady/Info.plist;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Steady lit l'eau, la méditation et les pas pour valider automatiquement vos habitudes.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Steady n'écrit aucune donnée dans Santé ; cette autorisation est requise par le système car l'app accède à HealthKit.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -289,15 +639,16 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = Rodrigo.Steady;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -305,6 +656,22 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0B10B8D02FF108FF00E271D6 /* Build configuration list for PBXNativeTarget "SteadywidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0B10B8D12FF108FF00E271D6 /* Debug configuration for PBXNativeTarget "SteadywidgetExtension" */,
+				0B10B8D22FF108FF00E271D6 /* Release configuration for PBXNativeTarget "SteadywidgetExtension" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		0B10BCAD2FF31D1A00E271D6 /* Build configuration list for PBXNativeTarget "SteadyWatch Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0B10BCAE2FF31D1A00E271D6 /* Debug configuration for PBXNativeTarget "SteadyWatch Watch App" */,
+				0B10BCAF2FF31D1A00E271D6 /* Release configuration for PBXNativeTarget "SteadyWatch Watch App" */,
+			);
+			defaultConfigurationName = Release;
+		};
 		0B4A7E792FF00C710087B497 /* Build configuration list for PBXProject "Steady" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -322,6 +689,43 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0B10BBEA2FF2682B00E271D6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.15.0;
+			};
+		};
+		0BADB0B52FF4000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0B10BBEB2FF268EB00E271D6 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0B10BBEA2FF2682B00E271D6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		0B10BBED2FF268F600E271D6 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0B10BBEA2FF2682B00E271D6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		0BADB0B52FF4000000000002 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0BADB0B52FF4000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0B4A7E762FF00C710087B497 /* Project object */;
 	validationLevel = 1;

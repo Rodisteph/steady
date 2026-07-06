@@ -8,13 +8,7 @@ struct AddHabitView: View {
     @State private var name = ""
     @State private var selectedIcon = "star.fill"
     @State private var showPremiumSheet = false
-
-    private let icons = [
-        "star.fill", "book.fill", "figure.run", "drop.fill",
-        "moon.fill", "sun.max.fill", "heart.fill", "bolt.fill",
-        "leaf.fill", "flame.fill", "brain.head.profile", "dumbbell.fill",
-        "fork.knife", "cup.and.saucer.fill", "pencil", "music.note"
-    ]
+    @State private var showIconPicker = false
 
     private var trimmedName: String {
         name.trimmingCharacters(in: .whitespaces)
@@ -39,7 +33,7 @@ struct AddHabitView: View {
 
                     VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                         sectionTitle("Icône")
-                        iconGrid
+                        iconChooser
                     }
 
                     if !store.storeManager.isPremium {
@@ -48,7 +42,7 @@ struct AddHabitView: View {
                 }
                 .padding(Theme.Spacing.lg)
             }
-            .background(Color.steadyBackground.ignoresSafeArea())
+            .background(AnimatedBackground(animated: false))
             .navigationTitle("Nouvelle habitude")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -75,8 +69,8 @@ struct AddHabitView: View {
                 .font(.system(size: 40, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: 84, height: 84)
-                .background(Circle().fill(Color.steadySageGradient))
-                .shadow(color: Color.steadySage.opacity(0.35), radius: 12, y: 6)
+                .background(Circle().fill(Color.accentGradient))
+                .shadow(color: Color.brandAccent.opacity(0.35), radius: 12, y: 6)
                 .animation(.spring(response: 0.35, dampingFraction: 0.6), value: selectedIcon)
 
             Text(trimmedName.isEmpty ? "Votre habitude" : trimmedName)
@@ -93,31 +87,28 @@ struct AddHabitView: View {
             .foregroundStyle(.secondary)
     }
 
-    private var iconGrid: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Theme.Spacing.md), count: 4), spacing: Theme.Spacing.md) {
-            ForEach(icons, id: \.self) { icon in
-                let isSelected = selectedIcon == icon
-                Button {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                        selectedIcon = icon
-                    }
-                    HapticManager.lightImpact()
-                } label: {
-                    Image(systemName: icon)
-                        .font(.title2)
-                        .foregroundStyle(isSelected ? .white : .primary)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 60)
-                        .background(
-                            RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous)
-                                .fill(isSelected ? AnyShapeStyle(Color.steadySageGradient) : AnyShapeStyle(Color.steadyCard))
-                        )
-                        .scaleEffect(isSelected ? 1.05 : 1.0)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Icône \(icon)")
-                .accessibilityAddTraits(isSelected ? .isSelected : [])
+    private var iconChooser: some View {
+        Button {
+            showIconPicker = true
+        } label: {
+            HStack(spacing: Theme.Spacing.md) {
+                Image(systemName: selectedIcon)
+                    .font(.title3)
+                    .foregroundStyle(.white)
+                    .frame(width: 44, height: 44)
+                    .background(Circle().fill(Color.accentGradient))
+                Text("Choisir une icône")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.primary)
+                Spacer()
+                Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
             }
+            .padding(Theme.Spacing.md)
+            .background(RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous).fill(Color.steadyCard))
+        }
+        .buttonStyle(.plain)
+        .sheet(isPresented: $showIconPicker) {
+            IconPickerView(selection: $selectedIcon)
         }
     }
 
@@ -129,12 +120,12 @@ struct AddHabitView: View {
             Spacer()
             Button("Passer à Premium") { showPremiumSheet = true }
                 .font(.footnote.bold())
-                .foregroundStyle(Color.steadySageDeep)
+                .foregroundStyle(Color.accentDeep)
         }
         .padding(Theme.Spacing.md)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous)
-                .fill(Color.steadySage.opacity(0.12))
+                .fill(Color.brandAccent.opacity(0.12))
         )
     }
 

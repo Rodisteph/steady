@@ -8,73 +8,34 @@ import SwiftUI
 extension Color {
 
     // MARK: Surfaces
+    //
+    // Les couleurs adaptatives (clair / sombre) sont définies dans le catalogue
+    // d'assets : `SteadyBackground`, `SteadyCard`, `SteadySurface`, `SteadySageDeep`.
+    // Xcode génère automatiquement les symboles `Color.steadyBackground`, etc.
+    //
+    // Important : on N'UTILISE PAS `Color(UIColor { trait in … })` — la résolution
+    // d'un UIColor dynamique peut se produire hors du thread principal pendant le
+    // rendu SwiftUI (AsyncRenderer) et provoquer un crash sur appareil
+    // (`_dispatch_assert_queue_fail`). Les couleurs nommées du catalogue sont
+    // résolues de façon thread-safe par SwiftUI.
 
-    /// Fond principal de l'app — crème chaud en clair, anthracite en sombre.
-    static var steadyBackground: Color {
-        Color(UIColor { trait in
-            trait.userInterfaceStyle == .dark
-                ? UIColor(red: 0.07, green: 0.08, blue: 0.08, alpha: 1.0)
-                : UIColor(red: 0.980, green: 0.976, blue: 0.965, alpha: 1.0)
-        })
-    }
+    // MARK: Accent (thème Premium)
+    //
+    // L'brandAccent suit la palette choisie via `ThemeManager` (Premium). Ces
+    // propriétés peuvent être évaluées par SwiftUI hors du main thread pendant le
+    // rendu, donc elles lisent uniquement la palette persistée thread-safe.
 
-    /// Surface des cartes — blanc pur en clair (pour se détacher du crème), gris foncé en sombre.
-    static var steadyCard: Color {
-        Color(UIColor { trait in
-            trait.userInterfaceStyle == .dark
-                ? UIColor(red: 0.13, green: 0.14, blue: 0.14, alpha: 1.0)
-                : UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-        })
-    }
+    /// Couleur d'brandAccent de base (palette courante).
+    static var brandAccent: Color { ThemeManager.persistedPalette.base }
 
-    /// Surface secondaire (champs, chips inactives).
-    static var steadySurface: Color {
-        Color(UIColor { trait in
-            trait.userInterfaceStyle == .dark
-                ? UIColor(red: 0.18, green: 0.19, blue: 0.19, alpha: 1.0)
-                : UIColor(red: 0.945, green: 0.945, blue: 0.93, alpha: 1.0)
-        })
-    }
+    /// Variante profonde de l'brandAccent (texte, tint, icônes).
+    static var accentDeep: Color { ThemeManager.persistedPalette.deep }
 
-    // MARK: Marque
+    /// Dégradé d'brandAccent (cartes validées, boutons, anneau, hero Premium).
+    static var accentGradient: LinearGradient { ThemeManager.persistedPalette.gradient }
 
-    /// Vert sauge de marque.
-    static let steadySage = Color(red: 141/255, green: 163/255, blue: 153/255)
-
-    /// Sauge profond — meilleur contraste pour texte/accents sur fond clair.
-    static var steadySageDeep: Color {
-        Color(UIColor { trait in
-            trait.userInterfaceStyle == .dark
-                ? UIColor(red: 0.60, green: 0.71, blue: 0.66, alpha: 1.0)
-                : UIColor(red: 0.34, green: 0.46, blue: 0.40, alpha: 1.0)
-        })
-    }
-
-    /// Accent chaud pour les streaks (flamme).
+    /// Accent chaud pour les streaks (flamme) — indépendant du thème.
     static let steadyFlame = Color(red: 232/255, green: 150/255, blue: 61/255)
-
-    // MARK: Dégradés
-
-    /// Dégradé de marque (cartes validées, hero Premium, anneau).
-    static var steadySageGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                Color(red: 0.62, green: 0.72, blue: 0.67),
-                Color(red: 0.47, green: 0.60, blue: 0.54)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
-
-    /// Dégradé chaud pour la flamme de streak.
-    static var steadyFlameGradient: LinearGradient {
-        LinearGradient(
-            colors: [Color(red: 0.96, green: 0.72, blue: 0.35), Color(red: 0.90, green: 0.49, blue: 0.27)],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
 }
 
 // MARK: - Tokens d'espacement & de forme
@@ -98,17 +59,43 @@ enum Theme {
 
 // MARK: - Modifiers réutilisables
 
-/// Carte « surélevée » : surface + coins arrondis + ombre douce adaptative.
+/// Carte « surélevée » premium : surface + glassmorphism léger (voile lumineux +
+/// liseré « verre »), coins continus harmonisés, et ombres naturelles en deux
+/// couches (contact + ambiante).
 struct SteadyCardModifier: ViewModifier {
     var cornerRadius: CGFloat = Theme.Radius.lg
 
     func body(content: Content) -> some View {
         content
             .background(
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(Color.steadyCard)
+                ZStack {
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .fill(Color.steadyCard)
+
+                    // Voile lumineux subtil (haut → centre) : effet « verre ».
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.white.opacity(0.14), Color.clear],
+                                startPoint: .top, endPoint: .center
+                            )
+                        )
+                }
             )
-            .shadow(color: Color.black.opacity(0.06), radius: 12, x: 0, y: 6)
+            .overlay(
+                // Liseré fin façon bord de verre (clair en haut, fondu en bas).
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [Color.white.opacity(0.45), Color.white.opacity(0.05)],
+                            startPoint: .top, endPoint: .bottom
+                        ),
+                        lineWidth: 0.75
+                    )
+            )
+            // Ombre de contact (proche) + ombre ambiante (large) = profondeur naturelle.
+            .shadow(color: Color.black.opacity(0.05), radius: 1.5, x: 0, y: 1)
+            .shadow(color: Color.black.opacity(0.08), radius: 18, x: 0, y: 12)
     }
 }
 

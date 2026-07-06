@@ -7,10 +7,10 @@ import Foundation
 /// PRIVACY.md et TERMS.md à la racine du projet). Apple **exige** une URL de
 /// politique de confidentialité valide et accessible.
 enum AppLinks {
-    /// Base des pages légales (GitHub Pages). Les pages doivent être publiées à
-    /// `/privacy` et `/terms` sous cette base.
+    /// Base des pages légales (GitHub Pages, repo `steady`).
+    /// Les fichiers `privacy.html` et `terms.html` doivent être à la racine du repo.
     private static let domain = "https://rodisteph.github.io/steady"
 
-    static var privacyPolicy: URL { URL(string: "\(domain)/privacy")! }
-    static var termsOfUse: URL { URL(string: "\(domain)/terms")! }
+    static var privacyPolicy: URL { URL(string: "\(domain)/privacy.html")! }
+    static var termsOfUse: URL { URL(string: "\(domain)/terms.html")! }
 }

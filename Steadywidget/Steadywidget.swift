@@ -1,84 +1,237 @@
-//
-//  Steadywidget.swift
-//  Steadywidget
-//
-//  Created by Bouabida Rodrigo on 28/06/2026.
-//
-
 import WidgetKit
 import SwiftUI
+import AppIntents
+
+// MARK: - Palette du widget (fond dégradé coloré + contenu blanc = lisible jour & nuit)
+
+private let brandGradient = LinearGradient(
+    colors: [Color(red: 0.56, green: 0.69, blue: 0.63), Color(red: 0.37, green: 0.51, blue: 0.46)],
+    startPoint: .topLeading, endPoint: .bottomTrailing
+)
+private let onBrand = Color.white
+private let onBrandSoft = Color.white.opacity(0.78)
+private let flame = Color(red: 1.0, green: 0.78, blue: 0.45)
+
+// MARK: - Timeline
+
+struct SteadyEntry: TimelineEntry {
+    let date: Date
+    let snapshot: SteadyWidgetSnapshot
+}
 
 struct Provider: TimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), emoji: "😀")
+    private var sample: SteadyWidgetSnapshot {
+        SteadyWidgetSnapshot(completed: 3, total: 4, weeklyTotal: 18, bestStreak: 7, habits: [
+            .init(name: "Méditer", icon: "brain.head.profile", done: true),
+            .init(name: "Lire 10 pages", icon: "book.fill", done: true),
+            .init(name: "Boire de l'eau", icon: "drop.fill", done: true),
+            .init(name: "Courir", icon: "figure.run", done: false)
+        ])
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(date: Date(), emoji: "😀")
-        completion(entry)
+    func placeholder(in context: Context) -> SteadyEntry { SteadyEntry(date: Date(), snapshot: sample) }
+
+    func getSnapshot(in context: Context, completion: @escaping (SteadyEntry) -> Void) {
+        let snap = context.isPreview ? sample : SteadyWidgetStore.load()
+        completion(SteadyEntry(date: Date(), snapshot: snap))
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, emoji: "😀")
-            entries.append(entry)
-        }
-
-        let timeline = Timeline(entries: entries, policy: .atEnd)
-        completion(timeline)
+    func getTimeline(in context: Context, completion: @escaping (Timeline<SteadyEntry>) -> Void) {
+        let entry = SteadyEntry(date: Date(), snapshot: SteadyWidgetStore.load())
+        let next = Calendar.current.date(byAdding: .hour, value: 1, to: Date()) ?? Date().addingTimeInterval(3600)
+        completion(Timeline(entries: [entry], policy: .after(next)))
     }
-
-//    func relevances() async -> WidgetRelevances<Void> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
 }
 
-struct SimpleEntry: TimelineEntry {
-    let date: Date
-    let emoji: String
-}
+// MARK: - Briques réutilisables
 
-struct SteadywidgetEntryView : View {
-    var entry: Provider.Entry
+private struct WidgetRing: View {
+    let completed: Int
+    let total: Int
+    var size: CGFloat = 60
+    var showPercent: Bool = false
+
+    private var progress: Double { total == 0 ? 0 : Double(completed) / Double(total) }
+    private var percent: Int { Int((progress * 100).rounded()) }
 
     var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
+        ZStack {
+            Circle().stroke(Color.white.opacity(0.25), lineWidth: size * 0.12)
+            Circle()
+                .trim(from: 0, to: max(0.001, progress))
+                .stroke(onBrand, style: StrokeStyle(lineWidth: size * 0.12, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+            if total > 0 && completed == total {
+                Image(systemName: "checkmark")
+                    .font(.system(size: size * 0.34, weight: .bold))
+                    .foregroundStyle(onBrand)
+            } else {
+                Text(showPercent ? "\(percent)%" : "\(completed)/\(total)")
+                    .font(.system(size: size * 0.26, weight: .bold, design: .rounded))
+                    .foregroundStyle(onBrand)
+                    .minimumScaleFactor(0.6)
+            }
+        }
+        .frame(width: size, height: size)
+    }
+}
 
-            Text("Emoji:")
-            Text(entry.emoji)
+private struct StreakChip: View {
+    let value: Int
+    var body: some View {
+        HStack(spacing: 3) {
+            Image(systemName: "flame.fill").foregroundStyle(flame)
+            Text("\(value)").foregroundStyle(onBrand)
+        }
+        .font(.caption.weight(.bold))
+        .padding(.horizontal, 8).padding(.vertical, 4)
+        .background(Capsule().fill(Color.white.opacity(0.18)))
+    }
+}
+
+private struct HabitRow: View {
+    let item: SteadyWidgetSnapshot.Item
+    var body: some View {
+        HStack(spacing: 8) {
+            Button(intent: ToggleHabitIntent(habitID: item.id)) {
+                Image(systemName: item.done ? "checkmark.circle.fill" : "circle")
+                    .font(.subheadline)
+                    .foregroundStyle(item.done ? onBrand : onBrand.opacity(0.5))
+            }
+            .buttonStyle(.plain)
+            Text(item.name)
+                .font(.subheadline.weight(.medium))
+                .strikethrough(item.done, color: onBrandSoft)
+                .foregroundStyle(item.done ? onBrandSoft : onBrand)
+                .lineLimit(1)
+            Spacer(minLength: 0)
         }
     }
 }
+
+// MARK: - Vue principale
+
+struct SteadyWidgetEntryView: View {
+    @Environment(\.widgetFamily) private var family
+    var entry: Provider.Entry
+    private var s: SteadyWidgetSnapshot { entry.snapshot }
+
+    var body: some View {
+        switch family {
+        case .systemSmall: smallView
+        case .systemLarge: largeView
+        default: mediumView
+        }
+    }
+
+    private var smallView: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Text("Steady").font(.headline.weight(.bold)).foregroundStyle(onBrand)
+                Spacer()
+                if s.bestStreak > 0 { StreakChip(value: s.bestStreak) }
+            }
+            Spacer()
+            HStack { Spacer(); WidgetRing(completed: s.completed, total: s.total, size: 78, showPercent: true); Spacer() }
+            Spacer()
+            Text("Aujourd'hui").font(.caption2.weight(.medium)).foregroundStyle(onBrandSoft)
+        }
+    }
+
+    private var mediumView: some View {
+        HStack(spacing: 16) {
+            VStack(spacing: 6) {
+                WidgetRing(completed: s.completed, total: s.total, size: 64)
+                if s.bestStreak > 0 { StreakChip(value: s.bestStreak) }
+            }
+            VStack(alignment: .leading, spacing: 7) {
+                if s.habits.isEmpty {
+                    Text("Ajoutez une habitude").font(.subheadline).foregroundStyle(onBrandSoft)
+                } else {
+                    ForEach(s.habits.prefix(4), id: \.self) { HabitRow(item: $0) }
+                }
+            }
+            Spacer(minLength: 0)
+        }
+    }
+
+    private var largeView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 14) {
+                WidgetRing(completed: s.completed, total: s.total, size: 64, showPercent: true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Steady").font(.headline.weight(.bold)).foregroundStyle(onBrand)
+                    Text(s.completed == s.total && s.total > 0 ? "Tout est validé !" : "\(s.completed)/\(s.total) aujourd'hui")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(onBrandSoft)
+                }
+                Spacer()
+            }
+
+            Rectangle().fill(Color.white.opacity(0.2)).frame(height: 1)
+
+            if s.habits.isEmpty {
+                Spacer()
+                Text("Ajoutez une habitude dans l'app")
+                    .font(.subheadline).foregroundStyle(onBrandSoft)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                Spacer()
+            } else {
+                VStack(alignment: .leading, spacing: 9) {
+                    ForEach(s.habits.prefix(5), id: \.self) { HabitRow(item: $0) }
+                }
+            }
+
+            Spacer(minLength: 0)
+            Rectangle().fill(Color.white.opacity(0.2)).frame(height: 1)
+
+            HStack {
+                statFoot(value: "\(s.weeklyTotal)", label: "cette semaine", icon: "checkmark.circle.fill")
+                Spacer()
+                statFoot(value: "\(s.bestStreak)", label: "série", icon: "flame.fill")
+            }
+        }
+    }
+
+    private func statFoot(value: String, label: String, icon: String) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon).font(.subheadline).foregroundStyle(icon == "flame.fill" ? flame : onBrand)
+            Text(value).font(.subheadline.weight(.bold)).foregroundStyle(onBrand)
+            Text(label).font(.caption).foregroundStyle(onBrandSoft)
+        }
+    }
+}
+
+// MARK: - Widget
 
 struct Steadywidget: Widget {
     let kind: String = "Steadywidget"
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
-            if #available(iOS 17.0, *) {
-                SteadywidgetEntryView(entry: entry)
-                    .containerBackground(.fill.tertiary, for: .widget)
-            } else {
-                SteadywidgetEntryView(entry: entry)
-                    .padding()
-                    .background()
-            }
+            SteadyWidgetEntryView(entry: entry)
+                .containerBackground(for: .widget) {
+                    ZStack {
+                        brandGradient
+                        // Voile lumineux discret (effet « glass » premium).
+                        LinearGradient(colors: [Color.white.opacity(0.20), .clear],
+                                       startPoint: .topLeading, endPoint: .center)
+                    }
+                }
         }
-        .configurationDisplayName("My Widget")
-        .description("This is an example widget.")
+        .configurationDisplayName("Steady")
+        .description("Vos habitudes du jour et votre progression.")
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 
-#Preview(as: .systemSmall) {
+#Preview(as: .systemMedium) {
     Steadywidget()
 } timeline: {
-    SimpleEntry(date: .now, emoji: "😀")
-    SimpleEntry(date: .now, emoji: "🤩")
+    SteadyEntry(date: .now, snapshot: SteadyWidgetSnapshot(completed: 3, total: 4, weeklyTotal: 18, bestStreak: 7, habits: [
+        .init(name: "Méditer", icon: "brain.head.profile", done: true),
+        .init(name: "Lire 10 pages", icon: "book.fill", done: true),
+        .init(name: "Boire de l'eau", icon: "drop.fill", done: true),
+        .init(name: "Courir", icon: "figure.run", done: false)
+    ]))
 }

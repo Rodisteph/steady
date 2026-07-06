@@ -1,0 +1,55 @@
+import SwiftUI
+
+/// Profil social d'un utilisateur (le mien ou un ami).
+struct UserProfile: Identifiable, Hashable {
+    let id: String
+    var username: String
+    var avatarSymbol: String
+    var level: Int
+    var score: Int
+    var streak: Int
+}
+
+/// Demande d'ami reçue.
+struct FriendRequest: Identifiable, Hashable {
+    let id: String
+    let from: UserProfile
+}
+
+/// Entrée de classement.
+struct LeaderboardEntry: Identifiable, Hashable {
+    let id: String
+    let profile: UserProfile
+    let rank: Int
+    let value: Int
+    var isMe: Bool
+}
+
+enum LeaderboardKind: String, CaseIterable, Identifiable {
+    case streak, completed, consistency
+    var id: String { rawValue }
+    var title: LocalizedStringKey {
+        switch self {
+        case .streak: return "Série"
+        case .completed: return "Validations"
+        case .consistency: return "Régularité"
+        }
+    }
+}
+
+/// Groupe privé.
+struct SocialGroup: Identifiable, Hashable {
+    let id: String
+    var name: String
+    var icon: String
+    var memberCount: Int
+}
+
+/// Message de chat de groupe.
+struct ChatMessage: Identifiable, Hashable {
+    let id: String
+    let authorName: String
+    let text: String
+    let date: Date
+    let isMine: Bool
+}

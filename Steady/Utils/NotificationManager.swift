@@ -1,6 +1,7 @@
 import UserNotifications
 import SwiftUI
 
+@MainActor
 @Observable
 final class NotificationManager {
     
@@ -8,56 +9,67 @@ final class NotificationManager {
     private let center = UNUserNotificationCenter.current()
     
     private(set) var authorizationStatus: UNAuthorizationStatus?
-    
+
+    /// Propriétés STOCKÉES (observables) : toute modification est détectée par
+    /// SwiftUI immédiatement — plus besoin de relancer l'app pour voir le changement.
     var isEnabled: Bool {
-        get { UserDefaults.standard.bool(forKey: "steady_notifications_enabled") }
-        set {
-            UserDefaults.standard.set(newValue, forKey: "steady_notifications_enabled")
-            if newValue {
+        didSet {
+            UserDefaults.standard.set(isEnabled, forKey: "steady_notifications_enabled")
+            if isEnabled {
                 requestAuthorization()
             } else {
                 cancelAll()
             }
         }
     }
-    
+
+    /// Le « rappel quotidien » général (indépendant des rappels par habitude).
+    var dailyReminderEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(dailyReminderEnabled, forKey: "steady_daily_reminder_enabled")
+            rescheduleAll(premium: lastKnownPremium)
+        }
+    }
+
     var dailyReminderTime: Date {
-        get {
-            if let saved = UserDefaults.standard.object(forKey: "steady_reminder_time") as? Date {
-                return saved
-            }
+        didSet {
+            UserDefaults.standard.set(dailyReminderTime, forKey: "steady_reminder_time")
+            rescheduleAll(premium: lastKnownPremium)
+        }
+    }
+
+    private var lastKnownPremium = false
+    private var habits: [Habit] = []
+
+    private init() {
+        self.isEnabled = UserDefaults.standard.bool(forKey: "steady_notifications_enabled")
+        self.dailyReminderEnabled = UserDefaults.standard.object(forKey: "steady_daily_reminder_enabled") as? Bool ?? true
+        if let saved = UserDefaults.standard.object(forKey: "steady_reminder_time") as? Date {
+            self.dailyReminderTime = saved
+        } else {
             var components = DateComponents()
             components.hour = 9
             components.minute = 0
-            return Calendar.current.date(from: components) ?? Date()
+            self.dailyReminderTime = Calendar.current.date(from: components) ?? Date()
         }
-        set {
-            UserDefaults.standard.set(newValue, forKey: "steady_reminder_time")
-            rescheduleAll(premium: false)
-        }
-    }
-    
-    private var habits: [Habit] = []
-    
-    private init() {
         checkAuthorizationStatus()
     }
     
     func checkAuthorizationStatus() {
-        Task {
+        Task { @MainActor in
             let settings = await center.notificationSettings()
             self.authorizationStatus = settings.authorizationStatus
         }
     }
-    
+
     func requestAuthorization() {
-        Task {
+        Task { @MainActor in
             do {
                 let granted = try await center.requestAuthorization(options: [.alert, .badge, .sound])
                 let settings = await center.notificationSettings()
                 self.authorizationStatus = settings.authorizationStatus
                 if granted {
-                    self.rescheduleAll(premium: false)
+                    self.rescheduleAll(premium: self.lastKnownPremium)
                 }
             } catch {}
         }
@@ -68,82 +80,140 @@ final class NotificationManager {
     }
     
     func rescheduleAll(premium: Bool) {
+        lastKnownPremium = premium
         guard isEnabled, authorizationStatus == .authorized else {
             cancelAll()
             return
         }
-        
+
         cancelAll()
-        
-        if premium {
-            schedulePremiumNotifications()
-        } else {
-            scheduleFreeNotifications()
+
+        // 1) Rappels propres à chaque habitude (chacun à son heure).
+        scheduleHabitReminders()
+
+        // 2) Le rappel quotidien général, s'il est activé (indépendant des rappels par habitude).
+        if dailyReminderEnabled {
+            scheduleGlobalDaily()
         }
+
+        // 3) Bilan du dimanche soir (pour tout le monde).
+        scheduleWeeklyDigest()
     }
-    
-    private func scheduleFreeNotifications() {
-        let content = UNMutableNotificationContent()
-        content.title = "Steady"
-        content.body = "N'oublie pas de valider tes habitudes aujourd'hui. Chaque petit pas compte !"
-        content.sound = .default
-        content.categoryIdentifier = "steady_daily_reminder"
-        
+
+    // MARK: - Rappels par habitude (heure individuelle)
+
+    @discardableResult
+    private func scheduleHabitReminders() -> Int {
         let calendar = Calendar.current
-        let timeComponents = calendar.dateComponents([.hour, .minute], from: dailyReminderTime)
-        
-        let trigger = UNCalendarNotificationTrigger(dateMatching: timeComponents, repeats: true)
-        let request = UNNotificationRequest(identifier: "steady_free_daily", content: content, trigger: trigger)
-        
-        center.add(request)
-    }
-    
-    private func schedulePremiumNotifications() {
-        let calendar = Calendar.current
-        let timeComponents = calendar.dateComponents([.hour, .minute], from: dailyReminderTime)
-        
-        for index in 0..<min(habits.count, 3) {
-            let habit = habits[index]
+        var count = 0
+        for habit in habits where habit.reminderEnabled {
+            guard let time = habit.reminderTime else { continue }
+            let hm = calendar.dateComponents([.hour, .minute], from: time)
+
             let content = UNMutableNotificationContent()
             content.title = "Steady"
-            content.body = "C'est l'heure de \(habit.name). Tu l'as validée \(weeklyStreak(for: habit)) fois cette semaine !"
+            content.body = L("C'est l'heure de \(habit.name) 🌿")
             content.sound = .default
             content.categoryIdentifier = "steady_habit_reminder"
             content.userInfo = ["habit_id": habit.id.uuidString]
-            
-            var components = timeComponents
-            components.minute = (components.minute ?? 0) + (index * 2)
-            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
-            let request = UNNotificationRequest(identifier: "steady_premium_habit_\(index)", content: content, trigger: trigger)
-            center.add(request)
+
+            // Vide = tous les jours (un seul déclencheur) ; sinon un par jour prévu.
+            let weekdays: [Int?] = habit.scheduledWeekdays.isEmpty ? [nil] : habit.scheduledWeekdays.map { $0 }
+            for weekday in weekdays {
+                var components = DateComponents()
+                components.hour = hm.hour
+                components.minute = hm.minute
+                if let weekday { components.weekday = weekday }
+
+                let suffix = weekday.map { "_\($0)" } ?? ""
+                let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+                center.add(UNNotificationRequest(identifier: "steady_habit_\(habit.id.uuidString)\(suffix)", content: content, trigger: trigger))
+            }
+            count += 1
         }
-        
-        var sundayComponents = timeComponents
-        sundayComponents.weekday = 1
-        sundayComponents.hour = 19
-        sundayComponents.minute = 0
-        
-        let weeklyContent = UNMutableNotificationContent()
-        weeklyContent.title = "Ton résumé de la semaine"
-        weeklyContent.body = weeklySummaryBody()
-        weeklyContent.sound = .default
-        weeklyContent.categoryIdentifier = "steady_weekly_summary"
-        
-        let weeklyTrigger = UNCalendarNotificationTrigger(dateMatching: sundayComponents, repeats: true)
-        let weeklyRequest = UNNotificationRequest(identifier: "steady_premium_weekly", content: weeklyContent, trigger: weeklyTrigger)
-        center.add(weeklyRequest)
-        
-        if hasSevenDayStreak() {
-            let streakContent = UNMutableNotificationContent()
-            streakContent.title = "Streak parfait !"
-            streakContent.body = "7 jours consécutifs. Tu es sur une excellente lancée, félicitations !"
-            streakContent.sound = .default
-            streakContent.categoryIdentifier = "steady_streak"
-            
-            let streakTrigger = UNTimeIntervalNotificationTrigger(timeInterval: 60, repeats: false)
-            let streakRequest = UNNotificationRequest(identifier: "steady_premium_streak", content: streakContent, trigger: streakTrigger)
-            center.add(streakRequest)
+        return count
+    }
+
+    // MARK: - Rappel quotidien global (repli, guilt-free)
+
+    private func scheduleGlobalDaily() {
+        let content = UNMutableNotificationContent()
+        content.title = "Steady"
+        content.body = dailyReminderBody()
+        content.sound = .default
+        content.categoryIdentifier = "steady_daily_reminder"
+
+        let timeComponents = Calendar.current.dateComponents([.hour, .minute], from: dailyReminderTime)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: timeComponents, repeats: true)
+        center.add(UNNotificationRequest(identifier: "steady_free_daily", content: content, trigger: trigger))
+    }
+
+    // MARK: - Bilan hebdomadaire automatique (dimanche 19h, pour tous)
+
+    private func scheduleWeeklyDigest() {
+        var components = DateComponents()
+        components.weekday = 1   // dimanche
+        components.hour = 19
+        components.minute = 0
+
+        let content = UNMutableNotificationContent()
+        content.title = L("Ton bilan de la semaine")
+        content.body = weeklySummaryBody()
+        content.sound = .default
+        content.categoryIdentifier = "steady_weekly_summary"
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+        center.add(UNNotificationRequest(identifier: "steady_weekly_digest", content: content, trigger: trigger))
+    }
+
+    // MARK: - Messages guilt-free
+
+    /// Message du rappel quotidien : encourageant, varié, et conscient de la série en cours.
+    private func dailyReminderBody() -> String {
+        let streak = bestCurrentStreak()
+        if streak >= 2 {
+            return L("🔥 \(streak) jours d'affilée ! Continue à ton rythme, tu fais du beau travail.")
         }
+        let messages = [
+            L("Un petit moment pour toi aujourd'hui ? Tes habitudes t'attendent, sans pression."),
+            L("Quel petit pas as-tu envie de faire aujourd'hui ?"),
+            L("Pas à pas, c'est comme ça qu'on avance. À ton rythme."),
+            L("Chaque petit pas compte. Prends un instant pour toi.")
+        ]
+        // Rotation stable selon le jour (pas d'aléatoire qui change à chaque reload).
+        let dayIndex = Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 0
+        return messages[dayIndex % messages.count]
+    }
+
+    /// Meilleure série en cours parmi toutes les habitudes.
+    private func bestCurrentStreak() -> Int {
+        habits.map { currentStreak(for: $0) }.max() ?? 0
+    }
+
+    private func currentStreak(for habit: Habit) -> Int {
+        let calendar = Calendar.current
+        let days = Set(habit.records.filter { $0.count >= habit.dailyGoal }.map { calendar.startOfDay(for: $0.date) })
+        guard !days.isEmpty else { return 0 }
+
+        let today = calendar.startOfDay(for: Date())
+        let start = calendar.startOfDay(for: habit.creationDate)
+        var streak = 0
+        var day = today
+
+        while day >= start {
+            if habit.isScheduled(on: day) && !RestDayStore.contains(day) {
+                if days.contains(day) {
+                    streak += 1
+                } else if day != today {
+                    break
+                }
+            } else if days.contains(day) {
+                streak += 1
+            }
+            guard let previous = calendar.date(byAdding: .day, value: -1, to: day) else { break }
+            day = previous
+        }
+        return streak
     }
     
     func cancelAll() {
@@ -153,33 +223,17 @@ final class NotificationManager {
     
     private func weeklyStreak(for habit: Habit) -> Int {
         guard let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date()) else { return 0 }
-        return habit.records.filter { $0.date >= weekAgo && $0.status == .completed }.count
-    }
-    
-    private func hasSevenDayStreak() -> Bool {
-        let calendar = Calendar.current
-        for habit in habits {
-            let last7 = (0..<7).compactMap { day -> Date? in
-                calendar.date(byAdding: .day, value: -day, to: calendar.startOfDay(for: Date()))
-            }
-            let allCompleted = last7.allSatisfy { date in
-                habit.records.contains {
-                    calendar.isDate($0.date, inSameDayAs: date) && $0.status == .completed
-                }
-            }
-            if allCompleted { return true }
-        }
-        return false
+        return habit.records.filter { $0.date >= weekAgo && $0.count >= habit.dailyGoal }.count
     }
     
     private func weeklySummaryBody() -> String {
         let total = habits.reduce(0) { $0 + weeklyStreak(for: $1) }
         if total == 0 {
-            return "Cette semaine était calme. Pas de souci, on reprend doucement lundi."
+            return L("Cette semaine était calme. Pas de souci, on reprend doucement lundi.")
         } else if total < 10 {
-            return "Belle semaine ! Tu as validé \(total) habitudes au total. Continue sur cette lancée."
+            return L("Belle semaine ! Tu as validé \(total) habitudes au total. Continue sur cette lancée.")
         } else {
-            return "Semaine exceptionnelle : \(total) validations. Tu progresses visiblement !"
+            return L("Semaine exceptionnelle : \(total) validations. Tu progresses visiblement !")
         }
     }
 }
