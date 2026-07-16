@@ -19,11 +19,16 @@ final class AuthManager {
         uid = Auth.auth().currentUser?.uid
     }
 
-    /// Prépare la requête Apple (scopes + nonce haché).
+    /// Prépare la requête Apple (nonce haché, aucun scope).
+    ///
+    /// On ne demande **ni le nom ni l'e-mail** : l'app n'en a pas besoin, le
+    /// pseudo est choisi séparément. Demander `.fullName` le transmettait à
+    /// Firebase Auth (`displayName`) — une donnée personnelle collectée pour
+    /// rien, qu'il aurait fallu déclarer dans les étiquettes de confidentialité.
     func prepareRequest(_ request: ASAuthorizationAppleIDRequest) {
         let nonce = Self.randomNonceString()
         currentNonce = nonce
-        request.requestedScopes = [.fullName]
+        request.requestedScopes = []
         request.nonce = Self.sha256(nonce)
     }
 
@@ -45,7 +50,7 @@ final class AuthManager {
             let firebaseCredential = OAuthProvider.appleCredential(
                 withIDToken: idToken,
                 rawNonce: nonce,
-                fullName: credential.fullName
+                fullName: nil          // aucun nom collecté (voir prepareRequest)
             )
             do {
                 let result = try await Auth.auth().signIn(with: firebaseCredential)
@@ -78,7 +83,7 @@ final class AuthManager {
         let firebaseCredential = OAuthProvider.appleCredential(
             withIDToken: idToken,
             rawNonce: nonce,
-            fullName: credential.fullName
+            fullName: nil          // aucun nom collecté (voir prepareRequest)
         )
         do {
             // Re-connexion récente : obligatoire avant de supprimer un compte.

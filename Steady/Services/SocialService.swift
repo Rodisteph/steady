@@ -17,6 +17,11 @@ protocol SocialService {
     func decline(_ request: FriendRequest) async
     func remove(_ friend: UserProfile) async
     func cheer(_ friend: UserProfile) async
+    /// Encouragements reçus (envoyés par mes amis). Sans cette lecture, un
+    /// encouragement partirait dans le vide : le destinataire n'en saurait rien.
+    func receivedCheers() async -> [Cheer]
+    /// Vide la boîte une fois les encouragements affichés.
+    func clearCheers() async
     func leaderboard(kind: LeaderboardKind, me: UserProfile) async -> [LeaderboardEntry]
     func groups() async -> [SocialGroup]
     /// Crée un groupe avec moi + les amis choisis comme membres.
@@ -42,6 +47,11 @@ protocol SocialService {
     func blockedUIDs() async -> Set<String>
     /// Profils que j'ai bloqués (pour l'écran « Utilisateurs bloqués »).
     func blockedUsers() async -> [UserProfile]
+
+    /// Crée une fois le groupe « Bienvenue ». Garantit qu'un nouvel utilisateur
+    /// a toujours un message d'un autre auteur, donc que Signaler et Bloquer
+    /// sont découvrables (règle App Store 1.2).
+    func ensureWelcomeGroup() async
 }
 
 enum SocialError: LocalizedError {
@@ -113,6 +123,12 @@ final class MockSocialService: SocialService {
     }
     func cheer(_ friend: UserProfile) async { /* démo : no-op */ }
 
+    private var _cheers: [Cheer] = [
+        Cheer(id: "c1", fromUID: "u1", fromUsername: "Camille", date: .now.addingTimeInterval(-1800))
+    ]
+    func receivedCheers() async -> [Cheer] { _cheers.filter { !_blocked.contains($0.fromUID) } }
+    func clearCheers() async { _cheers.removeAll() }
+
     func leaderboard(kind: LeaderboardKind, me: UserProfile) async -> [LeaderboardEntry] {
         let everyone = _friends + [me]
         func value(_ p: UserProfile) -> Int {
@@ -174,4 +190,8 @@ final class MockSocialService: SocialService {
     func unblock(_ uid: String) async { _blocked.remove(uid) }
     func blockedUIDs() async -> Set<String> { _blocked }
     func blockedUsers() async -> [UserProfile] { _friends.filter { _blocked.contains($0.id) } }
+
+    func ensureWelcomeGroup() async {
+        // Démo : le groupe « Famille » contient déjà des messages d'autres auteurs.
+    }
 }

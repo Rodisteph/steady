@@ -331,8 +331,53 @@ private struct FriendsSection: View {
     /// Amis à qui je viens d'applaudir (pour l'animation de l'icône).
     @State private var cheered: Set<String> = []
 
+    /// Les encouragements reçus. Le bouton « Merci ! » vide la boîte serveur.
+    private var receivedCheersCard: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            HStack(spacing: 8) {
+                Text("👏").font(.title2)
+                Text(store.cheers.count == 1
+                     ? L("Tu as reçu un encouragement !")
+                     : L("Tu as reçu \(store.cheers.count) encouragements !"))
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(Color.accentDeep)
+                Spacer(minLength: 0)
+            }
+            ForEach(store.cheers.prefix(5)) { cheer in
+                HStack(spacing: 6) {
+                    Image(systemName: "hands.clap.fill")
+                        .font(.caption2).foregroundStyle(Color.steadyFlame)
+                    Text(L("\(cheer.fromUsername) t'encourage"))
+                        .font(.caption).foregroundStyle(.secondary)
+                    Spacer(minLength: 0)
+                    Text(cheer.date, style: .relative)
+                        .font(.caption2).foregroundStyle(.secondary)
+                }
+            }
+            Button {
+                HapticManager.success()
+                Task { await store.clearCheers() }
+            } label: {
+                Text("Merci !")
+                    .font(.caption.weight(.bold)).foregroundStyle(.white)
+                    .frame(maxWidth: .infinity).padding(.vertical, 9)
+                    .background(Capsule().fill(Color.accentGradient))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(Theme.Spacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .steadyCard()
+        .transition(.move(edge: .top).combined(with: .opacity))
+    }
+
     var body: some View {
         VStack(spacing: Theme.Spacing.md) {
+            // Encouragements reçus : sans ça, un 👏 partirait dans le vide.
+            if !store.cheers.isEmpty {
+                receivedCheersCard
+            }
+
             // Recherche par pseudo
             HStack {
                 Image(systemName: "magnifyingglass").foregroundStyle(.secondary)

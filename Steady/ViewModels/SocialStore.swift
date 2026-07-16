@@ -49,9 +49,12 @@ final class SocialStore {
         // Indispensable pour recevoir les push de messages de groupe.
         PushNotificationService.shared.requestPermissionAndSync()
         await service.syncMyProfile(myProfile)
+        // Avant de charger les groupes : garantit qu'un nouvel arrivant en a un.
+        await service.ensureWelcomeGroup()
         friends = await service.friends()
         requests = await service.incomingRequests()
         groups = await service.groups()
+        cheers = await service.receivedCheers()
         await reloadLeaderboard()
     }
 
@@ -106,6 +109,15 @@ final class SocialStore {
         await reloadLeaderboard()
     }
     func cheer(_ f: UserProfile) async { await service.cheer(f) }
+
+    /// Encouragements reçus, affichés en haut de l'onglet Amis.
+    var cheers: [Cheer] = []
+
+    /// Marque les encouragements comme vus : on vide la boîte serveur et l'écran.
+    func clearCheers() async {
+        await service.clearCheers()
+        cheers = []
+    }
     func deleteMyData() async { await service.deleteMyAccountData() }
 
     /// Crée un groupe et recharge la liste. Renvoie `false` en cas d'échec (réseau…).

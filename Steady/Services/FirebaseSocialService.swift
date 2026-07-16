@@ -178,12 +178,48 @@ final class FirebaseSocialService: SocialService {
 
     func cheer(_ friend: UserProfile) async {
         guard let uid = myUID else { return }
-        // Dépose un encouragement dans la boîte de l'ami.
+        let myName = (await fetchProfile(uid))?.username ?? L("Un ami")
+        // Dépose un encouragement dans la boîte de l'ami. Le pseudo est copié
+        // ici : sans lui, l'ami devrait lire mon profil pour afficher « X t'a
+        // encouragé », et le message casserait si je supprimais mon compte.
         try? await db.collection("users").document(friend.id)
             .collection("cheers").addDocument(data: [
                 "fromUID": uid,
+                "fromUsername": myName,
                 "createdAt": FieldValue.serverTimestamp()
             ])
+    }
+
+    /// Encouragements reçus, du plus récent au plus ancien.
+    func receivedCheers() async -> [Cheer] {
+        guard let uid = myUID,
+              let snap = try? await db.collection("users").document(uid)
+                .collection("cheers")
+                .order(by: "createdAt", descending: true)
+                .limit(to: 30)
+                .getDocuments()
+        else { return [] }
+        let blocked = await blockedUIDs()
+        return snap.documents.compactMap { doc in
+            let d = doc.data()
+            let from = d["fromUID"] as? String ?? ""
+            guard !blocked.contains(from) else { return nil }
+            return Cheer(
+                id: doc.documentID,
+                fromUID: from,
+                fromUsername: d["fromUsername"] as? String ?? L("Un ami"),
+                date: (d["createdAt"] as? Timestamp)?.dateValue() ?? .now
+            )
+        }
+    }
+
+    /// Vide la boîte une fois les encouragements vus.
+    func clearCheers() async {
+        guard let uid = myUID,
+              let snap = try? await db.collection("users").document(uid)
+                .collection("cheers").getDocuments()
+        else { return }
+        for doc in snap.documents { try? await doc.reference.delete() }
     }
 
     // MARK: - Classement
@@ -306,6 +342,41 @@ final class FirebaseSocialService: SocialService {
         // Horodatage du dernier message → pastille « non lu » chez les autres membres.
         try? await db.collection("groups").document(group.id)
             .setData(["lastMessageAt": FieldValue.serverTimestamp()], merge: true)
+    }
+
+    // MARK: - Groupe d'accueil
+
+    /// uid fictif de l'équipe : ce n'est pas un vrai compte, il sert juste à
+    /// signer le message d'accueil pour qu'il ne soit pas attribué à l'utilisateur.
+    static let systemUID = "steady_team"
+
+    /// Crée, une seule fois, un groupe « Bienvenue » contenant un message signé
+    /// par l'équipe.
+    ///
+    /// Ce n'est pas qu'un accueil : sans lui, un utilisateur fraîchement inscrit
+    /// n'a aucun message d'un autre auteur, donc **aucun moyen de découvrir
+    /// Signaler et Bloquer** (règle App Store 1.2) — le reviewer Apple non plus.
+    func ensureWelcomeGroup() async {
+        guard let uid = myUID else { return }
+        let userDoc = db.collection("users").document(uid)
+        if let snap = try? await userDoc.getDocument(),
+           snap.get("welcomeGroupCreated") as? Bool == true { return }
+
+        guard let group = try? await db.collection("groups").addDocument(data: [
+            "name": L("Bienvenue sur Steady"),
+            "icon": "hand.wave.fill",
+            "members": [uid],
+            "createdAt": FieldValue.serverTimestamp()
+        ]) else { return }
+
+        try? await group.collection("messages").addDocument(data: [
+            "authorUID": Self.systemUID,
+            "authorName": L("Équipe Steady"),
+            "text": L("Bienvenue ! Ajoute tes amis pour vous encourager et lancer des défis ensemble. Un message te dérange ? Appuie longuement dessus pour le signaler ou bloquer son auteur."),
+            "createdAt": FieldValue.serverTimestamp()
+        ])
+
+        try? await userDoc.setData(["welcomeGroupCreated": true], merge: true)
     }
 
     // MARK: - Modération (règle App Store 1.2)

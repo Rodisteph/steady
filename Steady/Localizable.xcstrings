@@ -89,6 +89,28 @@
         }
       }
     },
+    "%@ t'encourage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is cheering you on"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ te anima"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ está a incentivar-te"
+          }
+        }
+      }
+    },
     "%@, %@%@": {
       "localizations": {
         "en": {
@@ -3933,6 +3955,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bem-estar"
+          }
+        }
+      }
+    },
+    "Bienvenue ! Ajoute tes amis pour vous encourager et lancer des défis ensemble. Un message te dérange ? Appuie longuement dessus pour le signaler ou bloquer son auteur.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome! Add your friends to cheer each other on and start challenges together. Bothered by a message? Long-press it to report it or block its author."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¡Bienvenido! Añade a tus amigos para animaros y lanzar retos juntos. ¿Te molesta un mensaje? Mantenlo pulsado para denunciarlo o bloquear a su autor."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bem-vindo! Adiciona os teus amigos para se encorajarem e lançarem desafios juntos. Uma mensagem incomoda-te? Prime-a longamente para a denunciar ou bloquear o autor."
           }
         }
       }
@@ -11376,6 +11420,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mensal"
+          }
+        }
+      }
+    },
+    "Merci !": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thanks!"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¡Gracias!"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obrigado!"
           }
         }
       }
@@ -19883,6 +19949,50 @@
         }
       }
     },
+    "Tu as reçu %lld encouragements !": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You got %lld cheers!"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¡Has recibido %lld ánimos!"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recebeste %lld incentivos!"
+          }
+        }
+      }
+    },
+    "Tu as reçu un encouragement !": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You got a cheer!"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¡Has recibido un ánimo!"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recebeste um incentivo!"
+          }
+        }
+      }
+    },
     "Tu as validé %lld fois cette semaine. Chaque petit pas compte !": {
       "extractionState": "stale",
       "localizations": {
@@ -20360,6 +20470,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Telemóvel em modo avião"
+          }
+        }
+      }
+    },
+    "Un ami": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A friend"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un amigo"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um amigo"
           }
         }
       }
@@ -22920,6 +23052,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Equilíbrio alimentar"
+          }
+        }
+      }
+    },
+    "Équipe Steady": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steady Team"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equipo Steady"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equipa Steady"
           }
         }
       }

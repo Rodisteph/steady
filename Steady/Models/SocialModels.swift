@@ -10,6 +10,16 @@ struct UserProfile: Identifiable, Hashable {
     var streak: Int
 }
 
+/// Encouragement reçu d'un ami (« 👏 »).
+struct Cheer: Identifiable, Hashable {
+    let id: String
+    let fromUID: String
+    /// Pseudo dénormalisé à l'écriture : évite une lecture de profil par
+    /// encouragement, et le message reste lisible même si l'ami se supprime.
+    let fromUsername: String
+    let date: Date
+}
+
 /// Demande d'ami reçue.
 struct FriendRequest: Identifiable, Hashable {
     let id: String

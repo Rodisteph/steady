@@ -1,47 +1,85 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "CFBundleName" : {
+      "comment" : "Bundle name",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Steady"
+          }
+        }
+      }
+    },
     "NSHealthShareUsageDescription" : {
       "comment" : "Demande d'accès aux données Apple Santé",
+      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Steady reads some Health data (steps, distance, water, mindfulness, exercise minutes) to automatically check off the habits you link to it. This data stays on your device."
           }
         },
         "es" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Steady lee algunos datos de Salud (pasos, distancia, agua, meditación, minutos de ejercicio) para validar automáticamente los hábitos que vincules. Estos datos permanecen en tu dispositivo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Steady lit certaines données de Santé (pas, distance, eau, méditation, minutes d'exercice) pour valider automatiquement les habitudes que tu y relies. Ces données restent sur ton appareil."
           }
         },
         "pt" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "O Steady lê alguns dados do Saúde (passos, distância, água, meditação, minutos de exercício) para validar automaticamente os hábitos que associares. Estes dados ficam no teu dispositivo."
+          }
+        }
+      }
+    },
+    "NSHealthUpdateUsageDescription" : {
+      "comment" : "Privacy - Health Update Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Steady n'écrit aucune donnée dans Santé ; cette autorisation est requise par le système car l'app accède à HealthKit."
           }
         }
       }
     },
     "NSUserTrackingUsageDescription" : {
       "comment" : "Prompt App Tracking Transparency (publicités personnalisées)",
+      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Steady uses this identifier to show you more relevant ads. You can decline: the app works exactly the same, with less targeted ads."
           }
         },
         "es" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Steady usa este identificador para mostrarte anuncios más relevantes. Puedes rechazarlo: la app funciona exactamente igual, con anuncios menos personalizados."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Steady utilise cet identifiant pour t'afficher des publicités plus pertinentes. Tu peux refuser : l'app fonctionne exactement pareil, avec des publicités moins ciblées."
           }
         },
         "pt" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "O Steady usa este identificador para te mostrar anúncios mais relevantes. Podes recusar: a app funciona exatamente igual, com anúncios menos direcionados."
           }
         }
