@@ -24,6 +24,9 @@ final class Challenge {
     var rewarded: Bool = false
     /// Identifiant du défi partagé sur Firebase (nil = défi purement local).
     var sharedID: String?
+    /// Métrique Apple Santé liée (vide = aucune). Le défi cumulatif progresse tout seul.
+    var healthMetricRaw: String = ""
+    var healthMetric: HealthMetric? { HealthMetric(rawValue: healthMetricRaw) }
 
     init(template: ChallengeTemplate) {
         self.id = UUID()
@@ -38,6 +41,7 @@ final class Challenge {
         self.lastProgressDate = nil
         self.isCompleted = false
         self.deadline = Calendar.current.date(byAdding: .day, value: template.windowDays, to: Date()) ?? Date()
+        self.healthMetricRaw = template.healthMetric?.rawValue ?? ""
     }
 
     /// Défi créé par l'utilisateur (hors catalogue) ou rejoint via une invitation.
@@ -73,10 +77,13 @@ struct ChallengeTemplate: Identifiable {
     let target: Int
     let unit: String
     let isDaily: Bool
+    /// Métrique Apple Santé pour l'auto-progression (défis cumulatifs uniquement).
+    var healthMetric: HealthMetric? = nil
 
-    /// Fenêtre de temps pour réussir : quotidien = objectif + marge ; cumulatif = un mois.
+    /// Fenêtre de temps pour réussir. Quotidien : l'objectif + 3 jours de grâce
+    /// (un défi « 21 jours » se joue en ~24 jours, pas 31). Cumulatif : un mois.
     nonisolated var windowDays: Int {
-        isDaily ? max(target + 10, Int(ceil(Double(target) * 1.4))) : 30
+        isDaily ? target + 3 : 30
     }
 }
 
@@ -123,11 +130,81 @@ enum ChallengeCatalog {
                               summary: "Étire-toi 10 minutes chaque jour, 21 jours.", icon: "figure.flexibility",
                               color: Color(red: 0.55, green: 0.62, blue: 0.85), target: 21, unit: L("jours"), isDaily: true),
             ChallengeTemplate(id: "run50", name: L("50 km ce mois"),
-                              summary: "Cumule 50 km de course dans le mois.", icon: "figure.run",
-                              color: Color(red: 0.95, green: 0.62, blue: 0.30), target: 50, unit: L("km"), isDaily: false),
+                              summary: "Cumule 50 km de course dans le mois. Suivi via Apple Santé.", icon: "figure.run",
+                              color: Color(red: 0.95, green: 0.62, blue: 0.30), target: 50, unit: L("km"), isDaily: false,
+                              healthMetric: .distance),
             ChallengeTemplate(id: "books4", name: L("4 livres"),
                               summary: "Lis 4 livres à ton rythme.", icon: "books.vertical.fill",
-                              color: Color(red: 0.55, green: 0.45, blue: 0.78), target: 4, unit: L("livres"), isDaily: false)
+                              color: Color(red: 0.55, green: 0.45, blue: 0.78), target: 4, unit: L("livres"), isDaily: false),
+
+            // --- Nouveaux défis ---
+            ChallengeTemplate(id: "water66", name: L("Nouvelle habitude · 66 jours"),
+                              summary: "66 jours pour ancrer une habitude pour de bon.", icon: "checkmark.seal.fill",
+                              color: Color(red: 0.36, green: 0.66, blue: 0.60), target: 66, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "noalcohol30", name: L("Sobre · 30 jours"),
+                              summary: "Un mois sans alcool. Ton corps te remerciera.", icon: "wineglass",
+                              color: Color(red: 0.55, green: 0.45, blue: 0.78), target: 30, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "tidy30", name: L("Maison rangée · 30 jours"),
+                              summary: "10 minutes de rangement chaque jour, 30 jours.", icon: "house.fill",
+                              color: Color(red: 0.72, green: 0.52, blue: 0.35), target: 30, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "save30", name: L("Zéro dépense superflue · 30 jours"),
+                              summary: "Pas d'achat impulsif pendant 30 jours.", icon: "eurosign.circle.fill",
+                              color: Color(red: 0.50, green: 0.72, blue: 0.45), target: 30, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "pushup1000", name: L("1000 pompes ce mois"),
+                              summary: "Cumule 1000 pompes à ton rythme dans le mois.", icon: "figure.strengthtraining.traditional",
+                              color: Color(red: 0.88, green: 0.42, blue: 0.38), target: 1000, unit: L("pompes"), isDaily: false),
+            ChallengeTemplate(id: "journal21", name: L("Journal · 21 jours"),
+                              summary: "Écris quelques lignes chaque soir, 21 jours.", icon: "book.closed.fill",
+                              color: Color(red: 0.61, green: 0.56, blue: 0.77), target: 21, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "walk100", name: L("100 km à pied ce mois"),
+                              summary: "Cumule 100 km de marche dans le mois. Suivi via Apple Santé.", icon: "figure.walk",
+                              color: Color(red: 0.36, green: 0.66, blue: 0.84), target: 100, unit: L("km"), isDaily: false,
+                              healthMetric: .distance),
+            ChallengeTemplate(id: "language30", name: L("Une langue · 30 jours"),
+                              summary: "Étudie une langue chaque jour pendant 30 jours.", icon: "character.book.closed.fill",
+                              color: Color(red: 0.55, green: 0.62, blue: 0.85), target: 30, unit: L("jours"), isDaily: true),
+
+            // --- Santé & bien-être ---
+            ChallengeTemplate(id: "notabac30", name: L("Sans tabac · 30 jours"),
+                              summary: "30 jours sans fumer. Le plus beau cadeau à tes poumons.", icon: "lungs.fill",
+                              color: Color(red: 0.45, green: 0.68, blue: 0.55), target: 30, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "nosugar30", name: L("Sans sucre ajouté · 30 jours"),
+                              summary: "Un mois sans sucre ajouté. Ton énergie va décoller.", icon: "cube.fill",
+                              color: Color(red: 0.85, green: 0.55, blue: 0.45), target: 30, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "nofastfood21", name: L("Sans fast-food · 21 jours"),
+                              summary: "21 jours sans fast-food, cuisine maison à la place.", icon: "takeoutbag.and.cup.and.straw.fill",
+                              color: Color(red: 0.88, green: 0.50, blue: 0.38), target: 21, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "run100", name: L("100 km de course ce mois"),
+                              summary: "Cumule 100 km de course dans le mois. Suivi via Apple Santé.", icon: "figure.run",
+                              color: Color(red: 0.90, green: 0.45, blue: 0.35), target: 100, unit: L("km"), isDaily: false,
+                              healthMetric: .distance),
+            ChallengeTemplate(id: "steps300k", name: L("300 000 pas ce mois"),
+                              summary: "Cumule 300 000 pas dans le mois. Suivi via Apple Santé.", icon: "figure.walk",
+                              color: Color(red: 0.36, green: 0.66, blue: 0.84), target: 300000, unit: L("pas"), isDaily: false,
+                              healthMetric: .steps),
+            ChallengeTemplate(id: "sleep21", name: L("Au lit avant 23h · 21 jours"),
+                              summary: "Couche-toi avant 23h pendant 21 jours.", icon: "bed.double.fill",
+                              color: Color(red: 0.45, green: 0.47, blue: 0.78), target: 21, unit: L("jours"), isDaily: true),
+
+            // --- Encore plus de défis ---
+            ChallengeTemplate(id: "exercise500", name: L("500 minutes de sport ce mois"),
+                              summary: "Cumule 500 minutes d'exercice ce mois. Suivi via Apple Santé.", icon: "figure.strengthtraining.traditional",
+                              color: Color(red: 0.88, green: 0.45, blue: 0.40), target: 500, unit: L("min"), isDaily: false,
+                              healthMetric: .exercise),
+            ChallengeTemplate(id: "energy10k", name: L("10 000 calories actives ce mois"),
+                              summary: "Brûle 10 000 kcal actives ce mois. Suivi via Apple Santé.", icon: "flame.fill",
+                              color: Color(red: 0.95, green: 0.55, blue: 0.30), target: 10000, unit: L("kcal"), isDaily: false,
+                              healthMetric: .energy),
+            ChallengeTemplate(id: "coldshower30", name: L("Douche froide · 30 jours"),
+                              summary: "Termine ta douche à l'eau froide pendant 30 jours.", icon: "snowflake",
+                              color: Color(red: 0.40, green: 0.70, blue: 0.85), target: 30, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "declutter30", name: L("Désencombrer · 30 jours"),
+                              summary: "Jette ou donne un objet chaque jour, 30 jours.", icon: "shippingbox.fill",
+                              color: Color(red: 0.72, green: 0.55, blue: 0.38), target: 30, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "meditate100", name: L("100 minutes de méditation"),
+                              summary: "Cumule 100 minutes de méditation. Suivi via Apple Santé.", icon: "brain.head.profile",
+                              color: Color(red: 0.55, green: 0.45, blue: 0.80), target: 100, unit: L("min"), isDaily: false,
+                              healthMetric: .mindful)
         ]
     }
 

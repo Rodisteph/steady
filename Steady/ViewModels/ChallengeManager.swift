@@ -93,14 +93,68 @@ final class ChallengeManager {
         try? context?.save()
     }
 
+    /// Un défi est-il piloté par Apple Santé ? (progression automatique, sans tap)
+    func isHealthLinked(_ challenge: Challenge) -> Bool {
+        challenge.healthMetric != nil
+    }
+
+    /// Synchronise les défis liés à Apple Santé : la progression = valeur cumulée
+    /// (distance, pas…) depuis le début du défi. Auto-complète si l'objectif est atteint.
+    func syncHealth(_ challenges: [Challenge]) {
+        let linked = challenges.filter { !$0.isCompleted && $0.healthMetric != nil }
+        guard !linked.isEmpty else { return }
+        Task { @MainActor in
+            await HealthManager.shared.requestAuthorization()
+            var changed = false
+            for challenge in linked {
+                guard let metric = challenge.healthMetric else { continue }
+                let value = await HealthManager.shared.value(for: metric, since: challenge.startDate)
+                let p = min(Int(value.rounded()), challenge.target)
+                if p != challenge.progress { challenge.progress = p; changed = true }
+                if p >= challenge.target { complete(challenge) }
+            }
+            if changed { try? context?.save() }
+        }
+    }
+
     private func complete(_ challenge: Challenge) {
         challenge.progress = challenge.target
         challenge.isCompleted = true
         if !challenge.rewarded {
             challenge.rewarded = true
-            GamificationManager.shared.grant(xp: challenge.rewardXP, coins: challenge.rewardCoins)
+            // Clé anti-farm : un défi du catalogue ne récompense qu'une fois (même
+            // après abandon + re-rejoint). Les défis perso sont uniques par instance.
+            let key = "challenge|" + (challenge.templateID == "custom" ? challenge.id.uuidString : challenge.templateID)
+            GamificationManager.shared.grantOnce(key: key, xp: challenge.rewardXP, coins: challenge.rewardCoins)
             HapticManager.success()
         }
+    }
+
+    /// Annule la validation d'aujourd'hui (tap par erreur) : -1 et on peut re-valider.
+    /// Si l'erreur avait « terminé » le défi, on rouvre — mais `rewarded` reste vrai
+    /// (la récompense déjà versée n'est jamais donnée deux fois).
+    func undoToday(_ challenge: Challenge) {
+        guard challenge.isDaily,
+              let last = challenge.lastProgressDate,
+              Calendar.current.isDateInToday(last) else { return }
+        challenge.progress = max(0, challenge.progress - 1)
+        challenge.lastProgressDate = nil
+        if challenge.isCompleted && challenge.progress < challenge.target {
+            challenge.isCompleted = false
+        }
+        HapticManager.lightImpact()
+        try? context?.save()
+    }
+
+    /// Retire des points d'un défi cumulatif (erreur de saisie sur +1/+10).
+    func retreat(_ challenge: Challenge, by amount: Int = 1) {
+        guard !challenge.isDaily else { return }
+        challenge.progress = max(0, challenge.progress - amount)
+        if challenge.isCompleted && challenge.progress < challenge.target {
+            challenge.isCompleted = false
+        }
+        HapticManager.lightImpact()
+        try? context?.save()
     }
 
     /// Un défi quotidien ne peut avancer qu'une fois par jour.

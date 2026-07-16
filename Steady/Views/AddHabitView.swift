@@ -14,6 +14,25 @@ struct AddHabitView: View {
         name.trimmingCharacters(in: .whitespaces)
     }
 
+    /// Habitudes courantes proposées : un tap remplit le nom + l'icône.
+    private static let suggestions: [(name: String, icon: String)] = [
+        (L("Boire de l'eau"), "drop.fill"),
+        (L("Méditer"), "brain.head.profile"),
+        (L("Lire 10 pages"), "book.fill"),
+        (L("Courir"), "figure.run"),
+        (L("Faire du sport"), "dumbbell.fill"),
+        (L("Marcher 30 min"), "figure.walk"),
+        (L("Étirements"), "figure.flexibility"),
+        (L("Gratitude"), "heart.fill"),
+        (L("Écrire mon journal"), "book.closed.fill"),
+        (L("Se coucher tôt"), "bed.double.fill"),
+        (L("Pas d'écran le soir"), "iphone.slash"),
+        (L("Manger un fruit"), "fork.knife"),
+        (L("Apprendre une langue"), "character.book.closed.fill"),
+        (L("Ranger 10 min"), "house.fill"),
+        (L("Prendre mes vitamines"), "pills.fill")
+    ]
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -29,6 +48,11 @@ struct AddHabitView: View {
                                 RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous)
                                     .fill(Color.steadyCard)
                             )
+                    }
+
+                    VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                        sectionTitle("Suggestions")
+                        suggestionsGrid
                     }
 
                     VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
@@ -56,7 +80,7 @@ struct AddHabitView: View {
                 }
             }
             .sheet(isPresented: $showPremiumSheet) {
-                PremiumView(storeManager: store.storeManager)
+                PremiumView(storeManager: store.storeManager, context: .habitLimit)
             }
         }
     }
@@ -85,6 +109,39 @@ struct AddHabitView: View {
         Text(text.uppercased())
             .font(.caption.weight(.semibold))
             .foregroundStyle(.secondary)
+    }
+
+    private var suggestionsGrid: some View {
+        let cols = [GridItem(.adaptive(minimum: 150), spacing: Theme.Spacing.sm)]
+        return LazyVGrid(columns: cols, spacing: Theme.Spacing.sm) {
+            ForEach(Self.suggestions, id: \.name) { s in
+                Button {
+                    name = s.name
+                    selectedIcon = s.icon
+                    HapticManager.lightImpact()
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: s.icon)
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(Color.accentDeep)
+                            .frame(width: 26, height: 26)
+                            .background(Circle().fill(Color.accentDeep.opacity(0.12)))
+                        Text(s.name)
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.horizontal, 10).padding(.vertical, 8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous)
+                            .fill(name == s.name ? Color.brandAccent.opacity(0.18) : Color.steadyCard)
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 
     private var iconChooser: some View {

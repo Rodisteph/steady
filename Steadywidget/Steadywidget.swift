@@ -3,14 +3,25 @@ import SwiftUI
 import AppIntents
 
 // MARK: - Palette du widget (fond dégradé coloré + contenu blanc = lisible jour & nuit)
+// Le dégradé suit le thème choisi dans l'app (transmis en hex via l'App Group).
 
-private let brandGradient = LinearGradient(
-    colors: [Color(red: 0.56, green: 0.69, blue: 0.63), Color(red: 0.37, green: 0.51, blue: 0.46)],
-    startPoint: .topLeading, endPoint: .bottomTrailing
-)
 private let onBrand = Color.white
 private let onBrandSoft = Color.white.opacity(0.78)
 private let flame = Color(red: 1.0, green: 0.78, blue: 0.45)
+
+private extension Color {
+    /// Couleur depuis un hex "RRGGBB" (repli : sauge).
+    init(hex: String) {
+        var value: UInt64 = 0
+        guard hex.count == 6, Scanner(string: hex).scanHexInt64(&value) else {
+            self = Color(red: 0.56, green: 0.69, blue: 0.63)
+            return
+        }
+        self.init(red: Double((value >> 16) & 0xFF) / 255,
+                  green: Double((value >> 8) & 0xFF) / 255,
+                  blue: Double(value & 0xFF) / 255)
+    }
+}
 
 // MARK: - Timeline
 
@@ -99,6 +110,11 @@ private struct HabitRow: View {
                     .foregroundStyle(item.done ? onBrand : onBrand.opacity(0.5))
             }
             .buttonStyle(.plain)
+            // L'icône de l'habitude : on la reconnaît d'un coup d'œil.
+            Image(systemName: item.icon)
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(item.done ? onBrandSoft : onBrand.opacity(0.9))
+                .frame(width: 16)
             Text(item.name)
                 .font(.subheadline.weight(.medium))
                 .strikethrough(item.done, color: onBrandSoft)
@@ -161,9 +177,16 @@ struct SteadyWidgetEntryView: View {
                 WidgetRing(completed: s.completed, total: s.total, size: 64, showPercent: true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Steady").font(.headline.weight(.bold)).foregroundStyle(onBrand)
-                    Text(s.completed == s.total && s.total > 0 ? "Tout est validé !" : "\(s.completed)/\(s.total) aujourd'hui")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(onBrandSoft)
+                    // Deux Text distincts : un ternaire de String échapperait à la localisation.
+                    Group {
+                        if s.completed == s.total && s.total > 0 {
+                            Text("Tout est validé !")
+                        } else {
+                            Text("\(s.completed)/\(s.total) aujourd'hui")
+                        }
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(onBrandSoft)
                 }
                 Spacer()
             }
@@ -193,7 +216,7 @@ struct SteadyWidgetEntryView: View {
         }
     }
 
-    private func statFoot(value: String, label: String, icon: String) -> some View {
+    private func statFoot(value: String, label: LocalizedStringKey, icon: String) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon).font(.subheadline).foregroundStyle(icon == "flame.fill" ? flame : onBrand)
             Text(value).font(.subheadline.weight(.bold)).foregroundStyle(onBrand)
@@ -212,7 +235,12 @@ struct Steadywidget: Widget {
             SteadyWidgetEntryView(entry: entry)
                 .containerBackground(for: .widget) {
                     ZStack {
-                        brandGradient
+                        // Le dégradé suit le thème choisi dans l'app.
+                        LinearGradient(
+                            colors: [Color(hex: entry.snapshot.gradientTop),
+                                     Color(hex: entry.snapshot.gradientBottom)],
+                            startPoint: .topLeading, endPoint: .bottomTrailing
+                        )
                         // Voile lumineux discret (effet « glass » premium).
                         LinearGradient(colors: [Color.white.opacity(0.20), .clear],
                                        startPoint: .topLeading, endPoint: .center)

@@ -40,7 +40,7 @@ struct RoutineDetailView: View {
         .navigationTitle("Routine")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showPremium) {
-            PremiumView(storeManager: store.storeManager)
+            PremiumView(storeManager: store.storeManager, context: .challenge)
         }
     }
 

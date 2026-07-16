@@ -5,6 +5,8 @@ import FirebaseCore
 @main
 struct SteadyApp: App {
     let container: ModelContainer
+    /// Relais UIKit pour le jeton APNs (notifications push des groupes).
+    @UIApplicationDelegateAdaptor(PushAppDelegate.self) private var pushDelegate
 
     init() {
         FirebaseApp.configure()
@@ -14,6 +16,7 @@ struct SteadyApp: App {
         let container = Self.makeContainer()
         self.container = container
         PhoneSyncService.shared.activate(container: container)
+        PushNotificationService.shared.activate()
     }
 
     var body: some Scene {
@@ -24,32 +27,44 @@ struct SteadyApp: App {
                 // Consentement RGPD (UMP) puis démarrage AdMob + préchargement
                 // de la pub récompensée. Ici (UI à l'écran) et non dans init() :
                 // le formulaire de consentement a besoin d'un ViewController.
-                .task { await AdConsentManager.requestConsentThenStartAds() }
+                .task {
+                    // En mode démo/capture d'écran, on n'affiche pas le formulaire de
+                    // consentement pub (il masquerait l'UI). Comportement normal ailleurs.
+                    #if DEBUG
+                    if ProcessInfo.processInfo.arguments.contains("-seedDemo") { return }
+                    #endif
+                    await AdConsentManager.requestConsentThenStartAds()
+                }
         }
         .modelContainer(container)
     }
 
-    /// Tente une base synchronisée via iCloud (CloudKit). En cas d'échec
-    /// (pas de compte iCloud, hors-ligne au premier lancement…), on retombe
-    /// sur une base purement locale pour ne jamais planter au démarrage.
+    /// Base synchronisée via iCloud (CloudKit) : les habitudes, l'historique, le
+    /// journal, les défis et les humeurs sont sauvegardés dans l'iCloud privé de
+    /// l'utilisateur → restaurés après réinstallation ET synchronisés entre appareils.
+    /// Prérequis (remplis) : toutes les relations to-many sont optionnelles
+    /// (`Habit.recordsStore`) et tous les attributs ont une valeur par défaut.
+    /// En cas d'échec (pas de compte iCloud, hors-ligne…), repli sur une base locale.
     private static func makeContainer() -> ModelContainer {
-        let schema = Schema([Habit.self, DailyRecord.self, JournalEntry.self, Challenge.self, MoodEntry.self])
+        let schema = Schema([Habit.self, DailyRecord.self, JournalEntry.self, Challenge.self, MoodEntry.self, Exam.self])
 
-        // iCloud (CloudKit) DÉSACTIVÉ pour l'instant : il exige que TOUTES les
-        // relations soient optionnelles (ex. `Habit.records`), ce qui demande un
-        // refactor. La validation CloudKit plante sinon au démarrage sur un thread
-        // de fond (non rattrapable). On reste donc sur une base 100 % locale.
+        // 1) iCloud (CloudKit) — l'objectif : plus jamais de perte de données.
+        if let container = try? ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema, cloudKitDatabase: .automatic)) {
+            return container
+        }
+
+        // 2) Repli local (pas de compte iCloud, etc.) — l'app fonctionne quand même.
         if let container = try? ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema, cloudKitDatabase: .none)) {
             return container
         }
 
-        // Ancien store incompatible : on le réinitialise pour ne jamais bloquer le démarrage.
+        // 3) Ancien store incompatible : on le réinitialise pour ne jamais bloquer.
         deleteStoreFiles()
         if let container = try? ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema, cloudKitDatabase: .none)) {
             return container
         }
 
-        // Dernier recours : en mémoire.
+        // 4) Dernier recours : en mémoire.
         return try! ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema, isStoredInMemoryOnly: true))
     }
 

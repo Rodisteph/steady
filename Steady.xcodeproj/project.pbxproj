@@ -12,8 +12,10 @@
 		0B10B8CE2FF108FF00E271D6 /* SteadywidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0B10B8BF2FF108FB00E271D6 /* SteadywidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0B10BBEC2FF268EB00E271D6 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 0B10BBEB2FF268EB00E271D6 /* FirebaseAuth */; };
 		0B10BBEE2FF268F600E271D6 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 0B10BBED2FF268F600E271D6 /* FirebaseFirestore */; };
-		0BADB0B52FF4000000000003 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 0BADB0B52FF4000000000002 /* GoogleMobileAds */; };
 		0B10BCAC2FF31D1A00E271D6 /* SteadyWatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 0B10BCA22FF31D0B00E271D6 /* SteadyWatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0BADB0B52FF4000000000003 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 0BADB0B52FF4000000000002 /* GoogleMobileAds */; };
+		0BAEF7C52FFD342800D8CD94 /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 0BAEF7C42FFD342800D8CD94 /* FirebaseInAppMessaging-Beta */; };
+		0BAEF7C72FFD350900D8CD94 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 0BAEF7C62FFD350900D8CD94 /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -122,7 +124,9 @@
 			files = (
 				0B10BBEC2FF268EB00E271D6 /* FirebaseAuth in Frameworks */,
 				0B10BBEE2FF268F600E271D6 /* FirebaseFirestore in Frameworks */,
+				0BAEF7C72FFD350900D8CD94 /* FirebaseMessaging in Frameworks */,
 				0BADB0B52FF4000000000003 /* GoogleMobileAds in Frameworks */,
+				0BAEF7C52FFD342800D8CD94 /* FirebaseInAppMessaging-Beta in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -222,6 +226,8 @@
 				0B10BBEB2FF268EB00E271D6 /* FirebaseAuth */,
 				0B10BBED2FF268F600E271D6 /* FirebaseFirestore */,
 				0BADB0B52FF4000000000002 /* GoogleMobileAds */,
+				0BAEF7C42FFD342800D8CD94 /* FirebaseInAppMessaging-Beta */,
+				0BAEF7C62FFD350900D8CD94 /* FirebaseMessaging */,
 			);
 			productName = Steady;
 			productReference = 0B4A7E7E2FF00C710087B497 /* Steady.app */;
@@ -333,7 +339,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = SteadywidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = V3BB9YS6N2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Steadywidget/Info.plist;
@@ -365,7 +371,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = SteadywidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = V3BB9YS6N2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Steadywidget/Info.plist;
@@ -584,7 +590,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Steady/Steady.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = V3BB9YS6N2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -622,7 +628,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Steady/Steady.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = V3BB9YS6N2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -724,6 +730,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0BADB0B52FF4000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
 			productName = GoogleMobileAds;
+		};
+		0BAEF7C42FFD342800D8CD94 /* FirebaseInAppMessaging-Beta */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0B10BBEA2FF2682B00E271D6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseInAppMessaging-Beta";
+		};
+		0BAEF7C62FFD350900D8CD94 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0B10BBEA2FF2682B00E271D6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

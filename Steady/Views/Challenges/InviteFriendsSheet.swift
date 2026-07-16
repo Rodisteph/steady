@@ -18,6 +18,55 @@ struct InviteFriendsSheet: View {
         UserDefaults.standard.string(forKey: "steady_social_username") ?? "Moi"
     }
 
+    /// Message d'invitation pour les amis qui n'ont pas encore l'app.
+    /// Le lien rend le message cliquable dans WhatsApp (aperçu + accès à l'app).
+    private var inviteMessage: String {
+        L("Je relève le défi « \(challenge.title) » sur Steady 💪 Rejoins-moi, on le fait ensemble !")
+        + "\n" + AppLinks.appStoreURL.absoluteString
+    }
+
+    /// Lien officiel WhatsApp : ouvre l'app avec le message pré-rempli.
+    private var whatsAppURL: URL? {
+        guard let encoded = inviteMessage.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
+        return URL(string: "https://wa.me/?text=\(encoded)")
+    }
+
+    /// Inviter hors app (WhatsApp ou autre) — pour les amis pas encore sur Steady.
+    private var externalInviteSection: some View {
+        VStack(spacing: Theme.Spacing.sm) {
+            Text("Ton ami n'est pas encore sur Steady ?")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            HStack(spacing: Theme.Spacing.sm) {
+                if let whatsAppURL {
+                    Link(destination: whatsAppURL) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "message.fill")
+                            Text("WhatsApp")
+                        }
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Capsule().fill(Color(red: 0.14, green: 0.75, blue: 0.38)))
+                    }
+                }
+                ShareLink(item: inviteMessage) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "square.and.arrow.up")
+                        Text("Autre app")
+                    }
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(Color.accentDeep)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Capsule().strokeBorder(Color.accentDeep.opacity(0.5), lineWidth: 1.5))
+                }
+            }
+        }
+        .padding(.top, Theme.Spacing.md)
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -78,6 +127,10 @@ struct InviteFriendsSheet: View {
                         Label(errorMessage, systemImage: "exclamationmark.triangle")
                             .font(.caption)
                             .foregroundStyle(.orange)
+                    }
+
+                    if !loading {
+                        externalInviteSection
                     }
                 }
                 .padding(.horizontal)

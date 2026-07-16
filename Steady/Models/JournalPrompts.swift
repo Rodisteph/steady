@@ -12,7 +12,7 @@ enum JournalPrompts {
             L("Quel moment veux-tu retenir de cette journée ?"),
             L("Comment te sens-tu, là, maintenant ?"),
             L("Qu'est-ce qui t'a donné de l'énergie aujourd'hui ?"),
-            L("Qu'est-ce qui t'a pesé — et c'est ok ?"),
+            L("Qu'est-ce qui t'a pesé, et c'est ok ?"),
             L("Une petite victoire d'aujourd'hui ?"),
             L("Qu'as-tu appris sur toi aujourd'hui ?"),
             L("Qu'est-ce qui mérite un peu plus d'attention demain ?"),

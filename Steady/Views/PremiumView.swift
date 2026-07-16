@@ -1,8 +1,27 @@
 import SwiftUI
 import StoreKit
 
+/// D'où le paywall est ouvert → adapte l'accroche (conversion contextuelle).
+enum PremiumContext {
+    case general, habitLimit, theme, stats, health, challenge, streak
+
+    var headline: LocalizedStringKey {
+        switch self {
+        case .general:   return "Débloque tout le potentiel de tes habitudes"
+        case .habitLimit: return "Suis toutes tes habitudes, sans limite"
+        case .theme:     return "Rends l'app 100 % à ton image"
+        case .stats:     return "Comprends enfin pourquoi tu décroches"
+        case .health:    return "Laisse tes habitudes se valider toutes seules"
+        case .challenge: return "Lance tous les défis que tu veux"
+        case .streak:    return "Protège ta série, ne repars jamais de zéro"
+        }
+    }
+}
+
 struct PremiumView: View {
     @Bindable var storeManager: StoreManager
+    /// Contexte d'ouverture (accroche adaptée). `.general` par défaut.
+    var context: PremiumContext = .general
     @Environment(\.dismiss) private var dismiss
 
     enum Offer { case annual, monthly, lifetime }
@@ -28,9 +47,15 @@ struct PremiumView: View {
                         FeatureRow(icon: "bolt.fill", title: "Progresse deux fois plus vite", subtitle: "Suis toutes tes habitudes, sans aucune limite")
                         FeatureRow(icon: "magnifyingglass", title: "Comprends pourquoi tu décroches", subtitle: "Repère tes tendances et ton meilleur jour")
                         FeatureRow(icon: "sparkles", title: "Ton coach IA personnel", subtitle: "Des conseils sur mesure, chaque jour")
-                        FeatureRow(icon: "heart.fill", title: "Tes habitudes se valident seules", subtitle: "Eau, méditation, pas — via Apple Santé")
+                        FeatureRow(icon: "heart.fill", title: "Tes habitudes se valident seules", subtitle: "Eau, méditation, distance, exercice via Apple Santé")
                         FeatureRow(icon: "paintpalette.fill", title: "Une app à ton image", subtitle: "Tous les thèmes de couleur premium")
+                        FeatureRow(icon: "star.circle.fill", title: "Récompenses doublées", subtitle: "2× d'XP et de pièces, plus des avatars exclusifs")
+                        FeatureRow(icon: "graduationcap.fill", title: "Mode Examens", subtitle: "Compte à rebours et sessions focus qui valident tes révisions")
+                        FeatureRow(icon: "square.and.arrow.up.fill", title: "Ton Wrapped sans filigrane", subtitle: "Partage ton récap façon story, proprement")
+                        FeatureRow(icon: "hand.raised.fill", title: "Zéro publicité", subtitle: "Jamais de pub, juste toi et tes habitudes")
                     }
+
+                    comparison
 
                     offers
                     purchaseSection
@@ -84,6 +109,85 @@ struct PremiumView: View {
         .frame(maxWidth: .infinity)
     }
 
+    // MARK: - Comparatif Gratuit vs Premium
+    //
+    // L'argument de vente le plus direct : l'utilisateur voit d'un coup d'œil
+    // ce qu'il rate. Placé juste avant les prix (moment de décision).
+
+    /// (libellé, valeur gratuite, valeur premium). "✓"/"✗" → icône.
+    private var comparisonRows: [(LocalizedStringKey, String, String)] {
+        [
+            ("Habitudes suivies",        "3",   "∞"),
+            ("Défis en cours",           "1",   "∞"),
+            ("Thèmes de couleur",        "1",   L("Tous")),
+            ("Statistiques avancées",    "✗",   "✓"),
+            ("Validation via Apple Santé", "✗", "✓"),
+            ("Coach IA personnel",       "✗",   "✓"),
+            ("Mode Examens et focus",    "✗",   "✓"),
+            ("Wrapped sans filigrane",   "✗",   "✓"),
+            ("Récompenses",              "×1",  "×2"),
+            ("Publicités",               L("Oui"), L("Non")),
+        ]
+    }
+
+    private var comparison: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Text("Ce que tu débloques")
+                    .font(.subheadline.weight(.bold))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text("Gratuit")
+                    .font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
+                    .frame(width: 58)
+                Text("Premium")
+                    .font(.caption2.weight(.bold)).foregroundStyle(Color.accentDeep)
+                    .frame(width: 64)
+            }
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
+
+            Divider().opacity(0.5)
+
+            ForEach(Array(comparisonRows.enumerated()), id: \.offset) { index, row in
+                HStack(spacing: 0) {
+                    Text(row.0)
+                        .font(.caption)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    compareCell(row.1, premium: false)
+                    compareCell(row.2, premium: true)
+                }
+                .padding(.horizontal, Theme.Spacing.md)
+                .padding(.vertical, 9)
+                .background(index.isMultiple(of: 2) ? Color.clear : Color.brandAccent.opacity(0.05))
+            }
+        }
+        .steadyCard(cornerRadius: Theme.Radius.md)
+    }
+
+    @ViewBuilder private func compareCell(_ value: String, premium: Bool) -> some View {
+        Group {
+            switch value {
+            case "✓":
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.subheadline)
+                    .foregroundStyle(premium ? Color.accentDeep : Color.secondary)
+            case "✗":
+                Image(systemName: "xmark")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary.opacity(0.5))
+            default:
+                Text(value)
+                    .font(premium ? .caption.weight(.bold) : .caption)
+                    .foregroundStyle(premium ? Color.accentDeep : .secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+        }
+        .frame(width: premium ? 64 : 58)
+    }
+
     // MARK: - Hero
 
     private var hero: some View {
@@ -97,7 +201,7 @@ struct PremiumView: View {
             Text("Steady Premium")
                 .font(.largeTitle.weight(.bold))
                 .foregroundStyle(.white)
-            Text("Débloque tout le potentiel de tes habitudes")
+            Text(context.headline)   // accroche adaptée au déclencheur
                 .font(.subheadline)
                 .foregroundStyle(.white.opacity(0.92))
                 .multilineTextAlignment(.center)
@@ -110,15 +214,25 @@ struct PremiumView: View {
 
     // MARK: - Offres
 
+    /// Équivalent mensuel de l'annuel (« 1,67 €/mois ») — l'argument qui parle
+    /// à un budget étudiant, bien plus que le prix annuel brut.
+    private var annualPerMonth: String? {
+        guard let annual = storeManager.annual else { return nil }
+        // On réutilise le format de StoreKit (et pas .currency(code:)) : sinon on
+        // mélange le formatage de la locale de l'appareil (« 1,50 US$ ») avec celui
+        // de la boutique (« $17.99 ») sur la même carte.
+        return (annual.price / 12).formatted(annual.priceFormatStyle)
+    }
+
     private var offers: some View {
         VStack(spacing: Theme.Spacing.md) {
             offerCard(
                 offer: .annual,
                 title: "Annuel",
-                price: storeManager.annual?.displayPrice,
-                period: "par an",
+                price: annualPerMonth.map { "\($0)/mois" } ?? storeManager.annual?.displayPrice,
+                period: annualPerMonth != nil ? "soit \(storeManager.annual?.displayPrice ?? "")/an" : "par an",
                 badge: "7 jours gratuits",
-                footnote: "Le plus avantageux"
+                footnote: "Le plus avantageux · -58 %"
             )
             offerCard(
                 offer: .monthly,
@@ -145,29 +259,49 @@ struct PremiumView: View {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { selection = offer }
             HapticManager.lightImpact()
         } label: {
-            HStack(spacing: Theme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: selected ? "largecircle.fill.circle" : "circle")
                     .font(.title3)
                     .foregroundStyle(selected ? Color.accentDeep : .secondary)
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 8) {
-                        Text(title).font(.headline)
+                // Ligne 1 : titre + prix. Ligne 2 : badge/mention + période.
+                // Le badge est sous le titre (et non à côté) : sinon titre, badge et
+                // prix se disputent la largeur et « Annuel » se fait tronquer.
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.sm) {
+                        Text(title)
+                            .font(.headline)
+                            .lineLimit(1)
+                            .fixedSize()                 // le titre n'est jamais tronqué
+                        Spacer(minLength: 4)
+                        Text(price ?? "…")
+                            .font(.headline)
+                            .lineLimit(1)
+                            .fixedSize()                 // le prix ne passe jamais sur 2 lignes
+                    }
+                    HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.sm) {
                         if let badge {
                             Text(badge)
                                 .font(.caption2.weight(.bold))
                                 .foregroundStyle(.white)
+                                .lineLimit(1)            // « 7 jours gratuits » sur UNE ligne
+                                .fixedSize()
                                 .padding(.horizontal, 8).padding(.vertical, 3)
                                 .background(Capsule().fill(Color.accentDeep))
                         }
+                        Spacer(minLength: 4)
+                        Text(period)
+                            .font(.caption2).foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .fixedSize()
                     }
+                    // La mention a sa propre ligne : à côté du badge et de la période
+                    // elle se faisait tronquer (« Le plus avanta… »).
                     if let footnote {
-                        Text(footnote).font(.caption).foregroundStyle(.secondary)
+                        Text(footnote)
+                            .font(.caption).foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                     }
-                }
-                Spacer()
-                VStack(alignment: .trailing, spacing: 0) {
-                    Text(price ?? "—").font(.headline)
-                    Text(period).font(.caption2).foregroundStyle(.secondary)
                 }
             }
             .padding(Theme.Spacing.lg)
@@ -181,6 +315,18 @@ struct PremiumView: View {
             )
         }
         .buttonStyle(.plain)
+    }
+
+    /// Mentions légales de renouvellement selon l'offre choisie.
+    private var termsText: String {
+        switch selection {
+        case .annual:
+            return L("7 jours gratuits, puis \(storeManager.annual?.displayPrice ?? "")/an. Abonnement renouvelé automatiquement, annulable à tout moment.")
+        case .monthly:
+            return L("\(storeManager.monthly?.displayPrice ?? "")/mois. Abonnement renouvelé automatiquement, annulable à tout moment.")
+        case .lifetime:
+            return L("Paiement unique de \(storeManager.lifetime?.displayPrice ?? ""). Accès à vie, sans abonnement.")
+        }
     }
 
     // MARK: - Achat
@@ -211,12 +357,11 @@ struct PremiumView: View {
             }
             .disabled(storeManager.isLoading || selectedProduct == nil)
 
-            if selection == .annual {
-                Text("7 jours gratuits, puis \(storeManager.annual?.displayPrice ?? "")/an. Annulable à tout moment.")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-            }
+            // Conditions claires pour l'offre sélectionnée (exigence App Store 3.1.2).
+            Text(termsText)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
 
             Button {
                 Task {

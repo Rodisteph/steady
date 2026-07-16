@@ -5,6 +5,8 @@ struct ChallengeCard: View {
     let challenge: Challenge
     var linkedHabitName: String?
     var isAuto: Bool
+    /// Piloté par Apple Santé (message de pied de carte adapté).
+    var healthLinked: Bool = false
     var daysRemaining: Int
     var expired: Bool
     var canAdvance: Bool
@@ -14,6 +16,9 @@ struct ChallengeCard: View {
     var onAbandon: () -> Void
     /// Ouvre la feuille « Défier des amis » (nil = pas connecté → partage texte classique).
     var onInvite: (() -> Void)?
+    /// Annule un check-in fait par erreur (quotidien : la validation du jour ;
+    /// cumulatif : -1). nil = pas d'annulation possible (défi auto).
+    var onUndo: ((Int) -> Void)?
 
     private var template: ChallengeTemplate? { ChallengeCatalog.template(for: challenge.templateID) }
     private var tint: Color { template?.color ?? .accentDeep }
@@ -130,17 +135,48 @@ struct ChallengeCard: View {
                 rewardChip
             }
         } else if expired {
-            Label("Temps écoulé — relance-le quand tu veux.", systemImage: "arrow.clockwise")
+            Label("Temps écoulé. Relance-le quand tu veux.", systemImage: "arrow.clockwise")
                 .font(.caption).foregroundStyle(.secondary)
+        } else if healthLinked {
+            Label("Progresse tout seul via Apple Santé", systemImage: "heart.fill")
+                .font(.caption.weight(.medium))
+                .foregroundStyle(tint)
         } else if isAuto {
             Label(linkedHabitName.map { L("Avance tout seul avec « \($0) »") } ?? L("Avance avec ton habitude"),
                   systemImage: "wand.and.stars")
                 .font(.caption.weight(.medium))
                 .foregroundStyle(tint)
         } else if challenge.isDaily {
-            advanceButton(title: canAdvance ? "Valider aujourd'hui" : "Déjà validé aujourd'hui", amount: 1, enabled: canAdvance)
+            VStack(spacing: 6) {
+                advanceButton(title: canAdvance ? "Valider aujourd'hui" : "Déjà validé aujourd'hui", amount: 1, enabled: canAdvance)
+                // Tap par erreur ? On peut annuler la validation du jour.
+                if !canAdvance, let onUndo {
+                    Button {
+                        onUndo(1)
+                    } label: {
+                        Label("Annuler la validation d'aujourd'hui", systemImage: "arrow.uturn.backward")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
         } else {
             HStack(spacing: Theme.Spacing.sm) {
+                if let onUndo, challenge.progress > 0 {
+                    Button {
+                        onUndo(1)
+                    } label: {
+                        Image(systemName: "minus")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(tint)
+                            .frame(width: 44)
+                            .padding(.vertical, 10)
+                            .background(Capsule().strokeBorder(tint.opacity(0.5), lineWidth: 1.5))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Retirer 1 (erreur de saisie)")
+                }
                 advanceButton(title: "+1", amount: 1, enabled: true)
                 advanceButton(title: "+10", amount: 10, enabled: true)
             }

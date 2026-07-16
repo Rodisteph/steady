@@ -23,6 +23,7 @@ struct WeeklySummaryView: View {
     @State private var shareImage: UIImage?
     @State private var showShare = false
     @State private var showPremium = false
+    @State private var showWrapped = false
 
     private var isPremium: Bool { store.storeManager.isPremium }
 
@@ -41,6 +42,8 @@ struct WeeklySummaryView: View {
                         .padding(.top, 60)
                     } else {
                         weeklyHero
+
+                        wrappedCard
 
                         habitsWeekCard
 
@@ -77,7 +80,10 @@ struct WeeklySummaryView: View {
                 }
             }
             .sheet(isPresented: $showPremium) {
-                PremiumView(storeManager: store.storeManager)
+                PremiumView(storeManager: store.storeManager, context: .stats)
+            }
+            .sheet(isPresented: $showWrapped) {
+                WrappedView(store: store, habits: habits)
             }
             .onAppear { updateBestStreakEver() }
             .onChange(of: bestStreak) { _, _ in updateBestStreakEver() }
@@ -123,39 +129,46 @@ struct WeeklySummaryView: View {
         }
     }
 
+    /// Héros dégradé et vivant : anneau blanc + humeur + 2 mini-tuiles.
     private var weeklyHero: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            Text(heroHeadline)
-                .font(.headline)
-            HStack(spacing: Theme.Spacing.lg) {
+        HStack(spacing: Theme.Spacing.lg) {
             ZStack {
-                Circle().stroke(Color.brandAccent.opacity(0.15), lineWidth: 11)
+                Circle().stroke(Color.white.opacity(0.25), lineWidth: 10)
                 Circle()
                     .trim(from: 0, to: max(0.001, heroProgress))
-                    .stroke(Color.accentGradient, style: StrokeStyle(lineWidth: 11, lineCap: .round))
+                    .stroke(.white, style: StrokeStyle(lineWidth: 10, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                 VStack(spacing: 0) {
                     Text("\(weekRate)%")
-                        .font(.system(size: 24, weight: .heavy, design: .rounded))
+                        .font(.system(size: 23, weight: .heavy, design: .rounded))
+                        .foregroundStyle(.white)
                         .contentTransition(.numericText())
                     Text("7 jours")
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.white.opacity(0.85))
                 }
             }
-            .frame(width: 104, height: 104)
+            .frame(width: 96, height: 96)
 
-            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-                heroStat(value: "\(bestStreak)", label: "Série en cours", icon: "flame.fill", tint: .steadyFlame)
-                Rectangle().fill(Color.secondary.opacity(0.12)).frame(height: 1)
-                heroStat(value: "\(totalCompleted)", label: "Validations (7j)", icon: "checkmark.circle.fill", tint: .accentDeep)
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                Text(heroHeadline)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .lineLimit(1).minimumScaleFactor(0.7)
+                HStack(spacing: 8) {
+                    heroTile(value: "\(bestStreak)", suffix: " j", label: "série 🔥")
+                    heroTile(value: "\(totalCompleted)", suffix: "", label: "validées")
+                }
             }
             Spacer(minLength: 0)
-            }
         }
         .padding(Theme.Spacing.lg)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .steadyCard()
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.lg, style: .continuous)
+                .fill(Color.accentGradient)
+        )
+        .shadow(color: Color.brandAccent.opacity(0.3), radius: 14, y: 8)
         .padding(.top, Theme.Spacing.sm)
         .onAppear {
             withAnimation(.spring(response: 0.9, dampingFraction: 0.85).delay(0.1)) {
@@ -169,20 +182,48 @@ struct WeeklySummaryView: View {
         }
     }
 
-    private func heroStat(value: String, label: LocalizedStringKey, icon: String, tint: Color) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(tint)
-                .frame(width: 30, height: 30)
-                .background(Circle().fill(tint.opacity(0.14)))
-            VStack(alignment: .leading, spacing: 0) {
-                Text(value)
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .contentTransition(.numericText())
-                Text(label).font(.caption).foregroundStyle(.secondary)
+    /// Carte d'accès au « Steady Wrapped » partageable (boucle de croissance).
+    private var wrappedCard: some View {
+        Button {
+            showWrapped = true
+        } label: {
+            HStack(spacing: Theme.Spacing.md) {
+                Image(systemName: "sparkles")
+                    .font(.title3)
+                    .foregroundStyle(.white)
+                    .frame(width: 44, height: 44)
+                    .background(Circle().fill(.white.opacity(0.2)))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Ton Steady Wrapped").font(.subheadline.weight(.bold)).foregroundStyle(.white)
+                    Text("Ton récap à partager en une carte").font(.caption).foregroundStyle(.white.opacity(0.9))
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.caption.weight(.bold)).foregroundStyle(.white.opacity(0.9))
             }
+            .padding(Theme.Spacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.Radius.lg, style: .continuous)
+                    .fill(LinearGradient(colors: [Color(red: 0.55, green: 0.45, blue: 0.80), Color(red: 0.36, green: 0.66, blue: 0.60)], startPoint: .leading, endPoint: .trailing))
+            )
         }
+        .buttonStyle(.plain)
+    }
+
+    /// Mini-tuile translucide dans le héros.
+    private func heroTile(value: String, suffix: String, label: LocalizedStringKey) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            HStack(alignment: .firstTextBaseline, spacing: 0) {
+                Text(value)
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .contentTransition(.numericText())
+                Text(suffix).font(.caption.weight(.semibold)).opacity(0.85)
+            }
+            Text(label).font(.system(size: 10, weight: .medium)).opacity(0.85)
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 10).padding(.vertical, 7)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.16)))
     }
 
     // MARK: - Semaine par habitude (compact, sans blabla)
@@ -398,7 +439,7 @@ struct BadgeView: View {
         .opacity(earned ? 1 : 0.75)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Text(badge.name))
-        .accessibilityHint(earned ? Text("Débloqué") : Text("Verrouillé — objectif : \(badge.milestone) jours"))
+        .accessibilityHint(earned ? Text("Débloqué") : Text("Verrouillé. Objectif : \(badge.milestone) jours"))
     }
 }
 
@@ -416,21 +457,22 @@ struct WeekDotsRow: View {
     }
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 5) {
             ForEach(days, id: \.date) { day in
-                VStack(spacing: 6) {
-                    ZStack {
-                        Circle()
-                            .fill(day.completed ? AnyShapeStyle(Color.accentGradient) : AnyShapeStyle(Color.steadySurface))
-                            .frame(width: 26, height: 26)
-                        if day.completed {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundStyle(.white)
+                VStack(spacing: 5) {
+                    // Barre pleine et arrondie : plus lisible qu'un petit point.
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(day.completed ? AnyShapeStyle(Color.accentGradient) : AnyShapeStyle(Color.secondary.opacity(0.12)))
+                        .frame(height: 26)
+                        .overlay {
+                            if day.completed {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundStyle(.white)
+                            }
                         }
-                    }
                     Text(Self.dayFormatter().string(from: day.date).uppercased())
-                        .font(.caption2.weight(.medium))
+                        .font(.caption2.weight(.semibold))
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity)

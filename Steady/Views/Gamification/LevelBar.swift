@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Barre de progression de jeu : niveau, XP, pièces, avatar évolutif (réutilisable).
 struct LevelBar: View {
+    var isPremium: Bool = false
     private var game = GamificationManager.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showShop = false
@@ -15,7 +16,7 @@ struct LevelBar: View {
         }
         .buttonStyle(.plain)
         .sheet(isPresented: $showShop) {
-            AvatarShopView()
+            AvatarShopView(isPremium: isPremium)
         }
     }
 

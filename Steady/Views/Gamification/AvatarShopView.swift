@@ -4,6 +4,8 @@ import SwiftUI
 struct AvatarItem: Identifiable {
     let symbol: String
     let cost: Int
+    /// Avatar exclusif : achetable uniquement par les membres Premium.
+    var premiumOnly: Bool = false
     var id: String { symbol }
 }
 
@@ -16,17 +18,29 @@ enum AvatarShop {
         AvatarItem(symbol: "star.fill", cost: 75),
         AvatarItem(symbol: "hare.fill", cost: 100),
         AvatarItem(symbol: "tortoise.fill", cost: 100),
+        AvatarItem(symbol: "leaf.fill", cost: 100),
         AvatarItem(symbol: "moon.stars.fill", cost: 120),
         AvatarItem(symbol: "bird.fill", cost: 120),
+        AvatarItem(symbol: "sun.max.fill", cost: 120),
         AvatarItem(symbol: "pawprint.fill", cost: 150),
+        AvatarItem(symbol: "brain.head.profile", cost: 150),
+        AvatarItem(symbol: "figure.run", cost: 175),
         AvatarItem(symbol: "crown.fill", cost: 200),
         AvatarItem(symbol: "diamond.fill", cost: 250),
-        AvatarItem(symbol: "trophy.fill", cost: 300)
+        AvatarItem(symbol: "trophy.fill", cost: 300),
+        // --- Exclusifs Premium ---
+        AvatarItem(symbol: "sparkles", cost: 200, premiumOnly: true),
+        AvatarItem(symbol: "wand.and.stars", cost: 250, premiumOnly: true),
+        AvatarItem(symbol: "flame.circle.fill", cost: 300, premiumOnly: true),
+        AvatarItem(symbol: "medal.fill", cost: 350, premiumOnly: true),
+        AvatarItem(symbol: "rosette", cost: 400, premiumOnly: true),
+        AvatarItem(symbol: "laurel.leading", cost: 500, premiumOnly: true)
     ]
 }
 
 /// Boutique : dépense tes pièces pour débloquer et équiper des avatars.
 struct AvatarShopView: View {
+    var isPremium: Bool = false
     private var game = GamificationManager.shared
     @Environment(\.dismiss) private var dismiss
 
@@ -108,8 +122,13 @@ struct AvatarShopView: View {
         let unlocked = game.isUnlocked(item.symbol)
         let selected = game.selectedAvatar == item.symbol
         let affordable = game.coins >= item.cost
+        let premiumLocked = item.premiumOnly && !isPremium && !unlocked
 
         return Button {
+            if premiumLocked {
+                HapticManager.lightImpact()   // exclusif Premium : pas achetable
+                return
+            }
             if unlocked {
                 game.select(item.symbol)
                 HapticManager.lightImpact()
@@ -123,6 +142,10 @@ struct AvatarShopView: View {
                     Text(selected ? "Équipé" : "Choisir")
                         .font(.caption2.weight(.bold))
                         .foregroundStyle(selected ? Color.accentDeep : .secondary)
+                } else if premiumLocked {
+                    Label("Premium", systemImage: "crown.fill")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(Color.accentDeep)
                 } else {
                     HStack(spacing: 3) {
                         Image(systemName: "star.circle.fill").font(.caption2)
@@ -134,7 +157,15 @@ struct AvatarShopView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, Theme.Spacing.md)
             .steadyCard(cornerRadius: Theme.Radius.md)
-            .opacity(unlocked || affordable ? 1 : 0.55)
+            .overlay(alignment: .topTrailing) {
+                if item.premiumOnly {
+                    Image(systemName: "crown.fill")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Color.steadyFlame)
+                        .padding(6)
+                }
+            }
+            .opacity(premiumLocked ? 0.5 : (unlocked || affordable ? 1 : 0.55))
         }
         .buttonStyle(.plain)
     }

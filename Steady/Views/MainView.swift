@@ -2,25 +2,55 @@ import SwiftUI
 import SwiftData
 import StoreKit
 
+/// Comment la liste d'habitudes est organisée sur l'écran principal.
+enum HabitGroupMode: String, CaseIterable, Identifiable {
+    case priority, category
+    var id: String { rawValue }
+    var title: LocalizedStringKey {
+        switch self {
+        case .priority: return "Importance"
+        case .category: return "Catégorie"
+        }
+    }
+    var icon: String {
+        switch self {
+        case .priority: return "exclamationmark.circle"
+        case .category: return "square.grid.2x2"
+        }
+    }
+}
+
 struct MainView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.requestReview) private var requestReview
     @Query(sort: [SortDescriptor(\Habit.sortIndex), SortDescriptor(\Habit.creationDate)]) private var habits: [Habit]
+    @Query(sort: \Exam.date) private var exams: [Exam]
+
+    /// Prochain examen dans les 30 jours → bannière compte à rebours sur l'accueil.
+    private var nextExam: Exam? {
+        exams.first { !$0.isPast && $0.daysRemaining <= 30 }
+    }
 
     var store: HabitStore
 
     @State private var showAddSheet = false
     @State private var showPremiumSheet = false
-    @State private var dailyInsight: CoachDailyInsight?
     @State private var showCelebration = false
     @State private var showReorderSheet = false
     @State private var showRoutines = false
     @State private var showChallenges = false
     @State private var showSocial = false
+    @State private var showExams = false
+    @State private var showWrappedDemo = false
     @State private var detailHabit: Habit?
     /// Habitude en attente de confirmation de suppression (l'historique part avec).
     @State private var habitToDelete: Habit?
+    /// Heure courante — rafraîchie au retour au premier plan pour que la salutation
+    /// (« Bonjour » / « Bonsoir ») ne reste pas figée sur le matin.
+    @State private var now = Date()
+    /// Message de confirmation éphémère (jour de repos, etc.).
+    @State private var toast: String?
     /// Cascade jouée une seule fois (évite de re-fondre les lignes recyclées au scroll).
     @State private var staggerDone = false
     /// Travail de démarrage (notifications, Santé) fait une seule fois par lancement.
@@ -38,6 +68,44 @@ struct MainView: View {
     private var todaysHabits: [Habit] { activeHabits.filter { $0.isScheduled(on: Date()) } }
     private var completedToday: Int { store.completedTodayCount(among: todaysHabits) }
 
+    /// Filtre par catégorie (bulles) — nil = tout afficher.
+    @State private var categoryFilter: HabitCategory?
+
+    /// Mode de regroupement de la liste (persisté).
+    @AppStorage("steady_habit_group_mode") private var groupModeRaw = HabitGroupMode.priority.rawValue
+    private var groupMode: HabitGroupMode { HabitGroupMode(rawValue: groupModeRaw) ?? .priority }
+
+    /// Habitudes après filtre par bulle (avant regroupement/tri).
+    private var filteredHabits: [Habit] {
+        todaysHabits.filter { categoryFilter == nil || $0.category == categoryFilter }
+    }
+
+    /// Tri par importance : priorité haute d'abord, puis ordre manuel.
+    private func byPriority(_ list: [Habit]) -> [Habit] {
+        list.sorted {
+            $0.priorityRaw == $1.priorityRaw
+                ? $0.sortIndex < $1.sortIndex
+                : $0.priorityRaw > $1.priorityRaw
+        }
+    }
+
+    /// Liste à plat, triée par importance (mode « Importance » ou filtre actif).
+    private var visibleHabits: [Habit] { byPriority(filteredHabits) }
+
+    /// Regroupement par catégorie : sections dans l'ordre de l'enum, habitudes
+    /// triées par importance à l'intérieur. Ne garde que les catégories non vides.
+    private var groupedHabits: [(category: HabitCategory, habits: [Habit])] {
+        HabitCategory.allCases.compactMap { category in
+            let members = filteredHabits.filter { $0.category == category }
+            return members.isEmpty ? nil : (category, byPriority(members))
+        }
+    }
+
+    /// Combien de catégories différentes sont réellement utilisées aujourd'hui ?
+    private var categoriesInUse: Int {
+        Set(todaysHabits.map(\.categoryRaw)).count
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -46,14 +114,11 @@ struct MainView: View {
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
 
-                DailyProgressHeader(completed: completedToday, total: todaysHabits.count)
+                DailyProgressHeader(completed: completedToday, total: todaysHabits.count, now: now)
                     .plainRow()
 
-                // Conseil du jour du coach (Premium) — la preuve quotidienne que l'app te connaît.
-                if isPremium, let insight = dailyInsight {
-                    DailyInsightCard(insight: insight)
-                        .plainRow()
-                }
+                // (Le « Conseil du jour » vit désormais uniquement sur l'écran Coach —
+                // évite le doublon sur l'accueil.)
 
                 HStack(spacing: Theme.Spacing.sm) {
                     Spacer(minLength: 0)
@@ -69,37 +134,37 @@ struct MainView: View {
                 quickActions
                     .plainRow()
 
+                // Compte à rebours d'examen — le hook « étudiant » sur l'accueil.
+                if let exam = nextExam {
+                    examBanner(exam).plainRow()
+                }
+
+                // Vue d'ensemble par catégories : bulles proportionnelles, tap = filtre.
+                CategoryBubblesView(habits: todaysHabits, selected: $categoryFilter)
+                    .plainRow()
+
+                // Sélecteur de tri : par importance (à plat) ou par catégorie (sections).
+                // Masqué s'il n'y a qu'une catégorie ou un filtre actif (rien à regrouper).
+                if categoryFilter == nil && categoriesInUse > 1 && todaysHabits.count > 1 {
+                    organizeBar.plainRow()
+                }
+
                 if habits.isEmpty {
                     emptyState.plainRow()
                 } else if todaysHabits.isEmpty {
                     nothingScheduledState.plainRow()
+                } else if categoryFilter == nil && groupMode == .category {
+                    // Regroupé par catégorie : un en-tête puis les habitudes.
+                    ForEach(groupedHabits, id: \.category) { group in
+                        categoryHeader(group.category, count: group.habits.count).plainRow()
+                        ForEach(group.habits) { habit in
+                            habitRow(habit, index: 0)
+                        }
+                    }
                 } else {
-                    ForEach(Array(todaysHabits.enumerated()), id: \.element.id) { index, habit in
-                        HabitCardView(habit: habit, store: store, onShowDetail: {
-                            detailHabit = habit
-                        }, onDelete: {
-                            habitToDelete = habit
-                        })
-                        .matchedTransitionSource(id: habit.id, in: detailZoom)
-                        .appearStagger(index, enabled: !staggerDone)
-                        .plainRow()
-                        .swipeActions(edge: .leading) {
-                            Button {
-                                detailHabit = habit
-                            } label: {
-                                Label("Détails", systemImage: "slider.horizontal.3")
-                            }
-                            .tint(Color.accentDeep)
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            // Pas de suppression directe : l'historique part avec,
-                            // on demande toujours confirmation.
-                            Button(role: .destructive) {
-                                habitToDelete = habit
-                            } label: {
-                                Label("Supprimer", systemImage: "trash")
-                            }
-                        }
+                    // À plat, trié par importance.
+                    ForEach(Array(visibleHabits.enumerated()), id: \.element.id) { index, habit in
+                        habitRow(habit, index: index)
                     }
                 }
 
@@ -168,6 +233,12 @@ struct MainView: View {
             .sheet(isPresented: $showSocial) {
                 SocialHubView(myStreak: habits.map { store.currentStreak(for: $0) }.max() ?? 0)
             }
+            .sheet(isPresented: $showExams) {
+                ExamModeView(store: store)
+            }
+            .sheet(isPresented: $showWrappedDemo) {
+                WrappedView(store: store, habits: Array(habits))
+            }
             .navigationDestination(item: $detailHabit) { habit in
                 HabitDetailView(habit: habit, store: store)
                     .navigationTransition(.zoom(sourceID: habit.id, in: detailZoom))
@@ -177,6 +248,26 @@ struct MainView: View {
                     CelebrationView(isPresented: $showCelebration)
                 }
             }
+            .overlay(alignment: .bottom) {
+                if let toast {
+                    Text(toast)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 18).padding(.vertical, 12)
+                        .background(Capsule().fill(Color.accentDeep))
+                        .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
+                        .padding(.horizontal, Theme.Spacing.xl)
+                        .padding(.bottom, Theme.Spacing.lg)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .task(id: toast) {
+                            // Disparaît tout seul après 2,5 s.
+                            try? await Task.sleep(for: .seconds(2.5))
+                            withAnimation { self.toast = nil }
+                        }
+                }
+            }
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: toast)
             .confirmationDialog(
                 Text("Supprimer « \(habitToDelete?.name ?? "") » ?"),
                 isPresented: Binding(
@@ -208,7 +299,10 @@ struct MainView: View {
                 }
             }
             .onChange(of: scenePhase) { _, phase in
-                if phase == .active { store.applyPendingWidgetToggles() }
+                if phase == .active {
+                    store.applyPendingWidgetToggles()
+                    now = Date()   // recalcule la salutation (matin/soir) au retour
+                }
             }
             .onAppear {
                 store.configure(with: modelContext)
@@ -219,9 +313,6 @@ struct MainView: View {
                     store.refreshNotifications()
                     store.syncHealth()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { staggerDone = true }
-                }
-                if isPremium {
-                    dailyInsight = DailyInsightEngine().today(habits: Array(habits), store: store)
                 }
                 #if DEBUG
                 let args = ProcessInfo.processInfo.arguments
@@ -238,6 +329,12 @@ struct MainView: View {
                 }
                 if args.contains("-autoDemo") {
                     runAutoDemo()
+                }
+                if args.contains("-showExams") {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { showExams = true }
+                }
+                if args.contains("-showWrapped") {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { showWrappedDemo = true }
                 }
                 #endif
             }
@@ -280,8 +377,39 @@ struct MainView: View {
         HStack(spacing: Theme.Spacing.sm) {
             quickAction("Routines", icon: "square.stack.3d.up.fill") { showRoutines = true }
             quickAction("Défis", icon: "trophy.fill") { showChallenges = true }
-            quickAction("Communauté", icon: "person.2.fill") { showSocial = true }
+            quickAction("Examens", icon: "graduationcap.fill") { showExams = true }
+            quickAction("Amis", icon: "person.2.fill") { showSocial = true }
         }
+    }
+
+    /// Bannière compte à rebours du prochain examen (tap → Exam Mode).
+    private func examBanner(_ exam: Exam) -> some View {
+        Button {
+            showExams = true
+        } label: {
+            HStack(spacing: Theme.Spacing.md) {
+                Image(systemName: exam.icon)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .frame(width: 40, height: 40)
+                    .background(Circle().fill(.white.opacity(0.2)))
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(exam.title).font(.subheadline.weight(.bold)).foregroundStyle(.white).lineLimit(1)
+                    Text(exam.daysRemaining == 0 ? L("C'est aujourd'hui, courage !") : L("Plus que \(exam.daysRemaining) jours"))
+                        .font(.caption).foregroundStyle(.white.opacity(0.9))
+                }
+                Spacer()
+                Text(exam.daysRemaining == 0 ? L("Jour J") : "J-\(exam.daysRemaining)")
+                    .font(.title3.weight(.heavy).monospacedDigit())
+                    .foregroundStyle(.white)
+            }
+            .padding(Theme.Spacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.Radius.lg, style: .continuous)
+                    .fill(exam.urgency == .critical ? AnyShapeStyle(LinearGradient(colors: [.orange, Color(red: 0.85, green: 0.35, blue: 0.30)], startPoint: .leading, endPoint: .trailing)) : AnyShapeStyle(Color.accentGradient))
+            )
+        }
+        .buttonStyle(.plain)
     }
 
     private func quickAction(_ title: LocalizedStringKey, icon: String, action: @escaping () -> Void) -> some View {
@@ -303,6 +431,69 @@ struct MainView: View {
         .buttonStyle(.plain)
     }
 
+    /// Une carte d'habitude avec ses actions de balayage (partagée par les deux modes).
+    @ViewBuilder
+    private func habitRow(_ habit: Habit, index: Int) -> some View {
+        HabitCardView(habit: habit, store: store, onShowDetail: {
+            detailHabit = habit
+        }, onDelete: {
+            habitToDelete = habit
+        })
+        .matchedTransitionSource(id: habit.id, in: detailZoom)
+        .appearStagger(index, enabled: !staggerDone)
+        .plainRow()
+        .swipeActions(edge: .leading) {
+            Button {
+                detailHabit = habit
+            } label: {
+                Label("Détails", systemImage: "slider.horizontal.3")
+            }
+            .tint(Color.accentDeep)
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            // Pas de suppression directe : l'historique part avec, on confirme toujours.
+            Button(role: .destructive) {
+                habitToDelete = habit
+            } label: {
+                Label("Supprimer", systemImage: "trash")
+            }
+        }
+    }
+
+    /// Bascule entre « par importance » (liste à plat) et « par catégorie » (sections).
+    private var organizeBar: some View {
+        Picker("", selection: Binding(
+            get: { groupMode },
+            set: { newMode in withAnimation(.easeInOut(duration: 0.25)) { groupModeRaw = newMode.rawValue } }
+        )) {
+            ForEach(HabitGroupMode.allCases) { mode in
+                Label(mode.title, systemImage: mode.icon).tag(mode)
+            }
+        }
+        .pickerStyle(.segmented)
+    }
+
+    /// En-tête d'une section de catégorie : pastille colorée + nom + compteur.
+    private func categoryHeader(_ category: HabitCategory, count: Int) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: category.icon)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.white)
+                .frame(width: 24, height: 24)
+                .background(Circle().fill(category.color))
+            Text(category.title)
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(.primary)
+            Text("\(count)")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 7).padding(.vertical, 1)
+                .background(Capsule().fill(Color.secondary.opacity(0.15)))
+            Spacer()
+        }
+        .padding(.top, Theme.Spacing.sm)
+    }
+
     private var lockedHabitsBanner: some View {
         Button {
             showPremiumSheet = true
@@ -315,7 +506,7 @@ struct MainView: View {
                         .foregroundStyle(.primary)
                     Spacer()
                 }
-                Text("Au-delà de 3 habitudes, le suivi nécessite Premium. Tes habitudes et leur historique sont conservés — réactive-les quand tu veux.")
+                Text("Au-delà de 3 habitudes, le suivi nécessite Premium. Tes habitudes et leur historique sont conservés : réactive-les quand tu veux.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.leading)
@@ -418,11 +609,17 @@ struct MainView: View {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                 store.isRestDay.toggle()
             }
+            HapticManager.success()
+            // Confirmation visible : le bouton fait clairement quelque chose.
+            toast = store.isRestDay
+                ? L("Jour de repos activé 🌙 Tes séries sont protégées aujourd'hui.")
+                : L("Jour de repos désactivé. Tes habitudes t'attendent 🌿")
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: store.isRestDay ? "moon.zzz.fill" : "moon.zzz")
-                Text(store.isRestDay ? "Repos — séries protégées" : "Jour de repos")
+                Text(store.isRestDay ? "Repos actif" : "Jour de repos")
                     .font(.subheadline.weight(.semibold))
+                    .lineLimit(1)
             }
             .foregroundStyle(store.isRestDay ? .white : .secondary)
             .padding(.horizontal, 20)
@@ -454,13 +651,14 @@ private extension View {
 struct DailyProgressHeader: View {
     let completed: Int
     let total: Int
+    var now: Date = Date()
 
     private var progress: Double {
         total == 0 ? 0 : Double(completed) / Double(total)
     }
 
     private var greeting: String {
-        let hour = Calendar.current.component(.hour, from: Date())
+        let hour = Calendar.current.component(.hour, from: now)
         switch hour {
         case 5..<12: return L("Bonjour")
         case 12..<18: return L("Bon après-midi")
@@ -479,7 +677,7 @@ struct DailyProgressHeader: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(greeting)
                     .font(.title2.weight(.bold))
-                Text(Date(), format: .dateTime.weekday(.wide).day().month(.wide).year())
+                Text(now, format: .dateTime.weekday(.wide).day().month(.wide).year())
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Text(subtitle)

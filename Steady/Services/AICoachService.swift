@@ -17,7 +17,7 @@ struct AICoachService {
         }
         if bestStreak >= 7 {
             let pool = [
-                L("Une semaine complète. Le toi d'il y a 7 jours n'y croyait pas trop — il avait tort."),
+                L("Une semaine complète. Le toi d'il y a 7 jours n'y croyait pas trop. Il avait tort."),
                 L("7 jours et plus. On vise les 14, ou on s'arrête en si bon chemin ? (C'était un piège.)"),
                 L("Une semaine de régularité, c'est énorme. La deuxième est plus facile. Prouve-le.")
             ]

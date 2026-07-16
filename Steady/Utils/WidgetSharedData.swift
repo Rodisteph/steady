@@ -8,6 +8,9 @@ struct SteadyWidgetSnapshot: Codable {
     var weeklyTotal: Int
     var bestStreak: Int
     var habits: [Item]
+    /// Dégradé du thème choisi dans l'app (hex "RRGGBB") — le widget suit la couleur de l'app.
+    var gradientTop: String
+    var gradientBottom: String
 
     struct Item: Codable, Hashable {
         var id: String
@@ -31,12 +34,15 @@ struct SteadyWidgetSnapshot: Codable {
         }
     }
 
-    init(completed: Int, total: Int, weeklyTotal: Int = 0, bestStreak: Int = 0, habits: [Item]) {
+    init(completed: Int, total: Int, weeklyTotal: Int = 0, bestStreak: Int = 0, habits: [Item],
+         gradientTop: String = "8FB0A1", gradientBottom: String = "5E8275") {
         self.completed = completed
         self.total = total
         self.weeklyTotal = weeklyTotal
         self.bestStreak = bestStreak
         self.habits = habits
+        self.gradientTop = gradientTop
+        self.gradientBottom = gradientBottom
     }
 
     /// Décodage tolérant : un ancien instantané (sans les nouveaux champs) reste lisible.
@@ -47,6 +53,8 @@ struct SteadyWidgetSnapshot: Codable {
         weeklyTotal = try c.decodeIfPresent(Int.self, forKey: .weeklyTotal) ?? 0
         bestStreak = try c.decodeIfPresent(Int.self, forKey: .bestStreak) ?? 0
         habits = try c.decodeIfPresent([Item].self, forKey: .habits) ?? []
+        gradientTop = try c.decodeIfPresent(String.self, forKey: .gradientTop) ?? "8FB0A1"
+        gradientBottom = try c.decodeIfPresent(String.self, forKey: .gradientBottom) ?? "5E8275"
     }
 
     static let empty = SteadyWidgetSnapshot(completed: 0, total: 0, habits: [])

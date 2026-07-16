@@ -16,22 +16,45 @@
 </head>
 <body>
   <h1>Politique de confidentialité — Steady</h1>
-  <p class="updated">Dernière mise à jour : 5 juillet 2026</p>
+  <p class="updated">Dernière mise à jour : 16 juillet 2026</p>
 
   <p>Steady (« l'application ») est conçue dans le respect de votre vie privée.
      Cette politique explique quelles données sont traitées et comment.</p>
 
   <h2>En résumé</h2>
   <ul>
-    <li><strong>Vos habitudes restent privées et locales.</strong> Le suivi de vos habitudes ne quitte jamais votre téléphone.</li>
+    <li><strong>Vos habitudes restent privées.</strong> Elles ne sont jamais transmises à nos serveurs.
+        Elles sont enregistrées sur votre appareil et, si iCloud est activé sur votre iPhone,
+        sauvegardées dans <strong>votre espace iCloud privé</strong> — auquel nous n'avons aucun accès.</li>
     <li><strong>La partie « Communauté » est optionnelle.</strong> Elle ne s'active que si vous vous connectez avec Apple. Sans connexion, aucune donnée n'est transmise.</li>
+    <li><strong>Aucune publicité sans votre action.</strong> Les publicités ne s'affichent que si vous appuyez sur le bouton prévu.</li>
   </ul>
 
-  <h2>Données stockées uniquement sur votre appareil</h2>
+  <h2>Vos habitudes : appareil et iCloud privé</h2>
   <ul>
-    <li><strong>Vos habitudes et validations</strong> : base de données locale (SwiftData), jamais transmise.</li>
-    <li><strong>Vos préférences</strong> (mode bienveillance, thème, langue, rappels) : enregistrées localement.</li>
-    <li><strong>Notifications</strong> : planifiées localement par iOS, sans serveur.</li>
+    <li><strong>Vos habitudes, validations, journal, humeurs, défis et examens</strong> sont enregistrés
+        dans une base de données locale (SwiftData).</li>
+    <li>Si <strong>iCloud</strong> est activé sur votre appareil, ces données sont synchronisées via
+        <strong>Apple CloudKit</strong> dans la <strong>base de données privée</strong> de votre compte
+        iCloud. Cela permet de les retrouver après une réinstallation et de les partager entre vos
+        appareils. Ces données sont gérées par Apple, chiffrées, et <strong>nous n'y avons jamais accès</strong>.
+        Vous pouvez désactiver iCloud à tout moment dans les réglages de votre iPhone.</li>
+    <li><strong>Vos préférences</strong> (thème, langue, rappels) : enregistrées localement.</li>
+    <li><strong>Notifications de rappel</strong> : planifiées localement par iOS, sans serveur.</li>
+  </ul>
+
+  <h2>Données Apple Santé (optionnel)</h2>
+  <p>Si vous reliez une habitude à <strong>Apple Santé</strong>, l'application demande votre autorisation
+     puis <strong>lit en lecture seule</strong> les données nécessaires : pas, distance (marche/course),
+     eau, minutes de pleine conscience, minutes d'exercice et calories actives.</p>
+  <ul>
+    <li>Ces données servent <strong>uniquement</strong> à valider automatiquement l'habitude concernée
+        et à faire progresser les défis que vous avez rejoints.</li>
+    <li>Elles sont <strong>traitées sur votre appareil</strong> et ne sont <strong>jamais</strong> transmises
+        à nos serveurs, ni à Firebase, ni à des annonceurs, ni utilisées à des fins publicitaires ou de marketing.</li>
+    <li>Steady <strong>n'écrit rien</strong> dans Apple Santé.</li>
+    <li>Vous pouvez retirer cette autorisation à tout moment dans
+        <em>Réglages → Santé → Accès et appareils → Steady</em>.</li>
   </ul>
 
   <h2>Données traitées si vous utilisez la Communauté (optionnel)</h2>
@@ -44,9 +67,25 @@
     <li>Des <strong>statistiques de progression</strong> partagées : niveau, score, série.</li>
     <li>Votre <strong>liste d'amis</strong> et les demandes d'amis.</li>
     <li>Les <strong>messages</strong> envoyés dans vos groupes.</li>
+    <li>Un <strong>jeton de notification</strong> de votre appareil, pour vous prévenir quand un ami
+        écrit dans un groupe. Il ne permet pas de vous identifier en dehors de l'application.</li>
+    <li>La <strong>liste des personnes que vous avez bloquées</strong> : strictement privée, visible de vous seul.</li>
   </ul>
   <p>Ces données ne sont visibles que par vous et les personnes avec qui vous interagissez.
      Nous ne les vendons pas et ne les utilisons pas à des fins publicitaires.</p>
+
+  <h2>Modération et signalements</h2>
+  <p>La Communauté applique une <strong>tolérance zéro</strong> envers les contenus offensants. Pour cela :</p>
+  <ul>
+    <li>Un <strong>filtre automatique</strong> refuse les messages contenant des propos manifestement injurieux.</li>
+    <li>Vous pouvez <strong>signaler</strong> un message. Le signalement enregistre le motif choisi, une
+        <strong>copie du message concerné</strong>, l'identifiant de son auteur et le vôtre — afin que
+        nous puissions l'examiner même si le message est supprimé ensuite. Ces signalements sont
+        conservés au maximum <strong>12 mois</strong>, puis effacés.</li>
+    <li>Vous pouvez <strong>bloquer</strong> une personne : ses messages et son profil disparaissent
+        immédiatement de votre application.</li>
+    <li>Les comptes qui enfreignent ces règles peuvent être suspendus.</li>
+  </ul>
 
   <h2>Prestataire (sous-traitant)</h2>
   <p>L'infrastructure Communauté repose sur <strong>Google Firebase</strong>. Voir la
@@ -77,9 +116,22 @@
      utilise les données</a> et la
      <a href="https://policies.google.com/privacy">politique de confidentialité de Google</a>.</p>
 
-  <h2>Suivi (tracking)</h2>
-  <p>En dehors du cadre publicitaire décrit ci-dessus, Steady ne suit pas votre activité à travers
-     d'autres apps ou sites, et vos données d'habitudes ne sont <strong>jamais</strong> partagées avec des annonceurs.</p>
+  <h2>Suivi (tracking) et identifiant publicitaire</h2>
+  <p>Pour afficher des publicités <strong>personnalisées</strong>, Google AdMob peut utiliser
+     l'<strong>identifiant publicitaire</strong> de votre appareil (IDFA). Conformément aux règles d'Apple,
+     iOS vous demande d'abord votre autorisation via une fenêtre
+     <strong>« Autoriser le suivi »</strong> (App Tracking Transparency).</p>
+  <ul>
+    <li><strong>Si vous acceptez</strong> : les publicités affichées peuvent être personnalisées à partir
+        de cet identifiant.</li>
+    <li><strong>Si vous refusez</strong> : l'identifiant n'est pas utilisé, et les publicités servies sont
+        <strong>non personnalisées</strong>. L'application fonctionne exactement de la même manière.</li>
+    <li>Vous pouvez changer d'avis à tout moment dans
+        <em>Réglages → Confidentialité et sécurité → Suivi</em>.</li>
+  </ul>
+  <p>En dehors de ce cadre publicitaire, Steady ne suit pas votre activité à travers d'autres apps ou
+     sites. Vos <strong>habitudes</strong>, votre <strong>journal</strong> et vos <strong>données Apple Santé</strong>
+     ne sont <strong>jamais</strong> partagés avec des annonceurs, ni utilisés pour cibler des publicités.</p>
 
   <h2>Vos droits et la suppression de votre compte</h2>
   <ul>

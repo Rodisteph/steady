@@ -25,11 +25,18 @@ final class GamificationManager {
         didSet { UserDefaults.standard.set(selectedAvatar, forKey: "steady_selected_avatar") }
     }
 
+    /// Registre anti-triche : clés des récompenses DÉJÀ versées (habitude-jour, défi…).
+    /// Empêche de farmer l'XP en cochant/décochant ou en rejoignant un défi.
+    private var rewardedKeys: Set<String> {
+        didSet { UserDefaults.standard.set(Array(rewardedKeys), forKey: "steady_rewarded_keys") }
+    }
+
     private init() {
         xp = UserDefaults.standard.integer(forKey: "steady_xp")
         coins = UserDefaults.standard.integer(forKey: "steady_coins")
         unlockedAvatars = Set(UserDefaults.standard.stringArray(forKey: "steady_unlocked_avatars") ?? [])
         selectedAvatar = UserDefaults.standard.string(forKey: "steady_selected_avatar")
+        rewardedKeys = Set(UserDefaults.standard.stringArray(forKey: "steady_rewarded_keys") ?? [])
     }
 
     // MARK: - Niveaux
@@ -78,15 +85,30 @@ final class GamificationManager {
     // MARK: - Gains
 
     /// Appelé quand une habitude vient d'être complétée. Renvoie `true` si on monte de niveau.
+    /// La clé (habitude-jour) garantit UNE récompense par habitude et par jour :
+    /// décocher puis recocher ne redonne pas d'XP.
+    /// `multiplier` = 2 pour les membres Premium (récompenses doublées).
     @discardableResult
-    func awardCompletion(streak: Int) -> Bool {
+    func awardCompletion(streak: Int, key: String, multiplier: Int = 1) -> Bool {
+        guard !rewardedKeys.contains(key) else { return false }
+        rewardedKeys.insert(key)
         let before = level
-        xp += 10 + min(max(streak, 0), 10)   // bonus jusqu'à +10 selon la série
-        coins += 5
+        let m = max(1, multiplier)
+        xp += (10 + min(max(streak, 0), 10)) * m   // bonus jusqu'à +10 selon la série
+        coins += 5 * m
         return level > before
     }
 
-    /// Récompense ponctuelle (ex. défi réussi).
+    /// Récompense ponctuelle protégée par une clé (ex. défi réussi) : versée une seule fois.
+    /// Empêche de re-gagner en abandonnant puis en rejoignant le même défi.
+    func grantOnce(key: String, xp: Int, coins: Int) {
+        guard !rewardedKeys.contains(key) else { return }
+        rewardedKeys.insert(key)
+        self.xp += max(0, xp)
+        self.coins += max(0, coins)
+    }
+
+    /// Récompense ponctuelle non protégée (usage interne rare).
     func grant(xp: Int, coins: Int) {
         self.xp += max(0, xp)
         self.coins += max(0, coins)

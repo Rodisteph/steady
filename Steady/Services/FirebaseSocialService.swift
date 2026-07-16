@@ -77,8 +77,9 @@ final class FirebaseSocialService: SocialService {
         guard let uid = myUID,
               let snap = try? await db.collection("users").document(uid).collection("friends").getDocuments()
         else { return [] }
+        let blocked = await blockedUIDs()
         var result: [UserProfile] = []
-        for doc in snap.documents {
+        for doc in snap.documents where !blocked.contains(doc.documentID) {
             if let p = await fetchProfile(doc.documentID) { result.append(p) }
         }
         return result.sorted { $0.username.localizedCaseInsensitiveCompare($1.username) == .orderedAscending }
@@ -216,12 +217,52 @@ final class FirebaseSocialService: SocialService {
         else { return [] }
         return snap.documents.map { doc in
             let d = doc.data()
+            let memberIDs = d["members"] as? [String] ?? []
             return SocialGroup(
                 id: doc.documentID,
                 name: d["name"] as? String ?? "Groupe",
                 icon: d["icon"] as? String ?? "person.3.fill",
-                memberCount: (d["members"] as? [String])?.count ?? 0
+                memberCount: memberIDs.count,
+                memberIDs: memberIDs,
+                lastMessageAt: (d["lastMessageAt"] as? Timestamp)?.dateValue()
             )
+        }
+    }
+
+    func members(of group: SocialGroup) async -> [UserProfile] {
+        var result: [UserProfile] = []
+        for uid in group.memberIDs {
+            if let profile = await fetchProfile(uid) { result.append(profile) }
+        }
+        return result.sorted { $0.username.localizedCaseInsensitiveCompare($1.username) == .orderedAscending }
+    }
+
+    func addMembers(_ friends: [UserProfile], to group: SocialGroup) async throws {
+        guard myUID != nil else { throw SocialError.notSignedIn }
+        guard !friends.isEmpty else { return }
+        do {
+            try await db.collection("groups").document(group.id)
+                .setData(["members": FieldValue.arrayUnion(friends.map(\.id))], merge: true)
+        } catch {
+            print("⚠️ Ajout de membres échoué : \(error.localizedDescription)")
+            throw SocialError.network
+        }
+    }
+
+    func createGroup(name: String, icon: String, friends: [UserProfile]) async throws {
+        guard let uid = myUID else { throw SocialError.notSignedIn }
+        let clean = name.trimmingCharacters(in: .whitespaces)
+        guard !clean.isEmpty else { return }
+        do {
+            try await db.collection("groups").addDocument(data: [
+                "name": clean,
+                "icon": icon,
+                "members": [uid] + friends.map(\.id),
+                "createdAt": FieldValue.serverTimestamp()
+            ])
+        } catch {
+            print("⚠️ Création du groupe échouée : \(error.localizedDescription)")
+            throw SocialError.network
         }
     }
 
@@ -232,16 +273,20 @@ final class FirebaseSocialService: SocialService {
                 .order(by: "createdAt")
                 .getDocuments()
         else { return [] }
-        return snap.documents.map { doc in
+        let blocked = await blockedUIDs()
+        return snap.documents.compactMap { doc in
             let d = doc.data()
             let author = d["authorUID"] as? String ?? ""
+            // Un utilisateur bloqué disparaît complètement de mon fil (règle 1.2).
+            guard !blocked.contains(author) else { return nil }
             let ts = d["createdAt"] as? Timestamp
             return ChatMessage(
                 id: doc.documentID,
                 authorName: d["authorName"] as? String ?? "?",
                 text: d["text"] as? String ?? "",
                 date: ts?.dateValue() ?? .now,
-                isMine: author == uid
+                isMine: author == uid,
+                authorUID: author
             )
         }
     }
@@ -258,5 +303,70 @@ final class FirebaseSocialService: SocialService {
                 "text": clean,
                 "createdAt": FieldValue.serverTimestamp()
             ])
+        // Horodatage du dernier message → pastille « non lu » chez les autres membres.
+        try? await db.collection("groups").document(group.id)
+            .setData(["lastMessageAt": FieldValue.serverTimestamp()], merge: true)
+    }
+
+    // MARK: - Modération (règle App Store 1.2)
+
+    func report(message: ChatMessage, in group: SocialGroup, reason: ReportReason) async {
+        guard let uid = myUID else { return }
+        // On copie le texte : le signalement doit rester examinable même si
+        // l'auteur supprime son message ensuite.
+        try? await db.collection("reports").addDocument(data: [
+            "type": "message",
+            "reporterUID": uid,
+            "targetUID": message.authorUID,
+            "targetName": message.authorName,
+            "groupID": group.id,
+            "messageID": message.id,
+            "content": message.text,
+            "reason": reason.rawValue,
+            "createdAt": FieldValue.serverTimestamp(),
+            "status": "open"
+        ])
+    }
+
+    func report(user: UserProfile, reason: ReportReason) async {
+        guard let uid = myUID else { return }
+        try? await db.collection("reports").addDocument(data: [
+            "type": "user",
+            "reporterUID": uid,
+            "targetUID": user.id,
+            "targetName": user.username,
+            "reason": reason.rawValue,
+            "createdAt": FieldValue.serverTimestamp(),
+            "status": "open"
+        ])
+    }
+
+    func block(_ uid: String) async {
+        guard let me = myUID, uid != me else { return }
+        try? await db.collection("users").document(me)
+            .collection("blocked").document(uid)
+            .setData(["createdAt": FieldValue.serverTimestamp()])
+    }
+
+    func unblock(_ uid: String) async {
+        guard let me = myUID else { return }
+        try? await db.collection("users").document(me)
+            .collection("blocked").document(uid).delete()
+    }
+
+    func blockedUIDs() async -> Set<String> {
+        guard let me = myUID,
+              let snap = try? await db.collection("users").document(me)
+                .collection("blocked").getDocuments()
+        else { return [] }
+        return Set(snap.documents.map(\.documentID))
+    }
+
+    func blockedUsers() async -> [UserProfile] {
+        var result: [UserProfile] = []
+        for uid in await blockedUIDs() {
+            if let p = await fetchProfile(uid) { result.append(p) }
+        }
+        return result.sorted { $0.username.localizedCaseInsensitiveCompare($1.username) == .orderedAscending }
     }
 }

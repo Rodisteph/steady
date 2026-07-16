@@ -41,6 +41,21 @@ service cloud.firestore {
         allow read, delete: if signedIn() && request.auth.uid == userId;
         allow create: if signedIn();
       }
+
+      // Liste de blocage (modération, règle App Store 1.2) : strictement privée.
+      // Personne d'autre que moi ne peut lire ni modifier qui j'ai bloqué.
+      match /blocked/{blockedId} {
+        allow read, write, delete: if signedIn() && request.auth.uid == userId;
+      }
+    }
+
+    // Signalements (modération, règle App Store 1.2).
+    // Un utilisateur connecté peut en créer un ; personne ne peut les relire
+    // ni les modifier depuis l'app (examen via la console Firebase uniquement).
+    // Empêche aussi un utilisateur de signaler en se faisant passer pour un autre.
+    match /reports/{reportId} {
+      allow create: if signedIn() && request.resource.data.reporterUID == request.auth.uid;
+      allow read, update, delete: if false;
     }
 
     // Défis partagés entre amis. Lecture/mise à jour ouvertes aux connectés :

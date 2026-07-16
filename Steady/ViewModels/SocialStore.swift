@@ -21,7 +21,7 @@ final class SocialStore {
     var requests: [FriendRequest] = []
     var leaderboard: [LeaderboardEntry] = []
     var groups: [SocialGroup] = []
-    var kind: LeaderboardKind = .streak
+    var kind: LeaderboardKind = .completed   // seul classement affiché : les validations
 
     // Recherche d'amis par pseudo.
     var searchResults: [UserProfile] = []
@@ -45,6 +45,9 @@ final class SocialStore {
     }
 
     func refresh() async {
+        // Demande la permission d'afficher les notifications + publie le jeton push.
+        // Indispensable pour recevoir les push de messages de groupe.
+        PushNotificationService.shared.requestPermissionAndSync()
         await service.syncMyProfile(myProfile)
         friends = await service.friends()
         requests = await service.incomingRequests()
@@ -66,7 +69,7 @@ final class SocialStore {
         do {
             searchResults = try await service.searchUsers(matching: term)
             if searchResults.isEmpty {
-                searchMessage = L("Personne trouvé. Vérifie l'orthographe — ton ami doit avoir ouvert l'onglet Communauté connecté au moins une fois.")
+                searchMessage = L("Personne trouvé. Vérifie l'orthographe : ton ami doit avoir ouvert l'onglet Communauté connecté au moins une fois.")
             }
         } catch {
             searchResults = []
@@ -105,9 +108,80 @@ final class SocialStore {
     func cheer(_ f: UserProfile) async { await service.cheer(f) }
     func deleteMyData() async { await service.deleteMyAccountData() }
 
+    /// Crée un groupe et recharge la liste. Renvoie `false` en cas d'échec (réseau…).
+    func createGroup(name: String, icon: String, friends: [UserProfile]) async -> Bool {
+        do {
+            try await service.createGroup(name: name, icon: icon, friends: friends)
+            groups = await service.groups()
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    func members(_ g: SocialGroup) async -> [UserProfile] { await service.members(of: g) }
+
+    /// Ajoute des amis à un groupe existant. Renvoie `false` en cas d'échec.
+    func addMembers(_ friendsToAdd: [UserProfile], to g: SocialGroup) async -> Bool {
+        guard !friendsToAdd.isEmpty else { return false }
+        do {
+            try await service.addMembers(friendsToAdd, to: g)
+            groups = await service.groups()
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    // MARK: - Messages non lus
+
+    /// Compteur observable : incrémenté à chaque lecture pour rafraîchir les pastilles.
+    private(set) var readMarker = 0
+
+    /// Y a-t-il des messages plus récents que ma dernière ouverture de ce chat ?
+    func hasUnread(_ g: SocialGroup) -> Bool {
+        _ = readMarker   // dépendance @Observable : la pastille se met à jour
+        guard let last = g.lastMessageAt else { return false }
+        let read = UserDefaults.standard.object(forKey: "steady_group_read_\(g.id)") as? Date ?? .distantPast
+        return last > read
+    }
+
+    func markRead(_ g: SocialGroup) {
+        UserDefaults.standard.set(Date(), forKey: "steady_group_read_\(g.id)")
+        readMarker += 1
+    }
+
     func messages(_ g: SocialGroup) async -> [ChatMessage] { await service.messages(in: g) }
-    func send(_ text: String, to g: SocialGroup) async -> [ChatMessage] {
+    /// Envoie un message. Renvoie `nil` si le filtre de modération le refuse
+    /// (l'appelant affiche alors `ContentModeration.rejectionMessage`).
+    func send(_ text: String, to g: SocialGroup) async -> [ChatMessage]? {
+        guard !ContentModeration.containsObjectionable(text) else { return nil }
         await service.send(text, to: g)
         return await service.messages(in: g)
+    }
+
+    // MARK: - Modération (règle App Store 1.2)
+
+    func report(message: ChatMessage, in group: SocialGroup, reason: ReportReason) async {
+        await service.report(message: message, in: group, reason: reason)
+    }
+
+    func report(user: UserProfile, reason: ReportReason) async {
+        await service.report(user: user, reason: reason)
+    }
+
+    /// Bloque un utilisateur puis rafraîchit amis et messages (il doit disparaître).
+    func block(_ uid: String) async {
+        await service.block(uid)
+        friends = await service.friends()
+    }
+
+    func unblock(_ uid: String) async {
+        await service.unblock(uid)
+        friends = await service.friends()
+    }
+
+    func blockedUsers() async -> [UserProfile] {
+        await service.blockedUsers()
     }
 }

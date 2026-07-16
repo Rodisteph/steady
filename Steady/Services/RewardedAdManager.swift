@@ -17,11 +17,15 @@ final class RewardedAdManager: NSObject, FullScreenContentDelegate {
     private override init() { super.init() }
 
     /// L'ID de prod vit ICI et nulle part ailleurs.
+    ///
+    /// En DEBUG on garde l'ID de TEST de Google : cliquer sur de vraies publicités
+    /// pendant le développement est considéré comme du trafic invalide et peut
+    /// faire suspendre le compte AdMob.
     private static var adUnitID: String {
         #if DEBUG
         "ca-app-pub-3940256099942544/1712485313"   // ID de TEST Google officiel
         #else
-        "ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY"   // ← TODO : ton ID AdMob de prod
+        "ca-app-pub-3090498892331333/4364880280"   // bloc récompensé Steady (prod)
         #endif
     }
 

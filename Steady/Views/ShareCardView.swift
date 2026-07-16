@@ -86,7 +86,7 @@ struct ShareCardView: View {
     }
 
     private var footer: some View {
-        Text("Mes habitudes, en douceur. — Steady")
+        Text("Mes habitudes, en douceur. Steady")
             .font(.system(size: 13, weight: .medium))
             .foregroundStyle(Color.white.opacity(0.8))
     }

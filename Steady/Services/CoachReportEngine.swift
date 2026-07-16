@@ -44,8 +44,8 @@ struct CoachReportEngine {
         let avg = streaks.isEmpty ? 0 : Int((Double(streaks.reduce(0, +)) / Double(streaks.count)).rounded())
 
         let bw = analytics.bestWorstWeekday(active)
-        let bestDay = bw.map { analytics.weekdayName($0.best) } ?? "—"
-        let worstDay = bw.map { analytics.weekdayName($0.worst) } ?? "—"
+        let bestDay = bw.map { analytics.weekdayName($0.best) } ?? "…"
+        let worstDay = bw.map { analytics.weekdayName($0.worst) } ?? "…"
 
         let summary = weeklySummaryText(rate: weekRate, longest: longest, worstDay: worstDay, done: done)
 
@@ -59,7 +59,7 @@ struct CoachReportEngine {
 
     private func weeklySummaryText(rate: Int, longest: Int, worstDay: String, done: Int) -> String {
         if done == 0 {
-            return L("Semaine calme. Aucun jugement — on repart en douceur dès maintenant.")
+            return L("Semaine calme. Aucun jugement, on repart en douceur dès maintenant.")
         }
         if rate >= 80 {
             return L("Superbe semaine ! Tu as validé \(rate)% de tes habitudes et tenu une série de \(longest) jours. \(worstDay) reste ton jour à surveiller.")
@@ -88,7 +88,7 @@ struct CoachReportEngine {
             !h.records.contains { $0.count >= h.dailyGoal && isWithin(days: 30, $0.date) }
         }.count
         let bw = analytics.bestWorstWeekday(active)
-        let bestDay = bw.map { analytics.weekdayName($0.best) } ?? "—"
+        let bestDay = bw.map { analytics.weekdayName($0.best) } ?? "…"
 
         let summary = monthlySummaryText(rate: thisRate, evolution: evolution, records: newRecords, total: total)
 

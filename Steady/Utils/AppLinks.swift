@@ -13,4 +13,13 @@ enum AppLinks {
 
     static var privacyPolicy: URL { URL(string: "\(domain)/privacy.html")! }
     static var termsOfUse: URL { URL(string: "\(domain)/terms.html")! }
+
+    /// Lien de téléchargement inclus dans les invitations (WhatsApp, défis…).
+    /// ⚠️ REMPLACE `idXXXXXXXXXX` par ton vrai identifiant App Store dès que
+    /// l'app est publiée (App Store Connect → ton app → « Apple ID »).
+    /// En attendant, ça pointe vers une recherche App Store « Steady ».
+    static var appStoreURL: URL {
+        URL(string: "https://apps.apple.com/app/idXXXXXXXXXX")
+            ?? URL(string: "https://apps.apple.com/search?term=steady")!
+    }
 }

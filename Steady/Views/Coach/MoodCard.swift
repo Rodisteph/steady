@@ -159,7 +159,7 @@ struct MoodCard: View {
             return L("Tu te sens nettement mieux les jours où tu valides tes habitudes. 💚")
         }
         if avgIdle - avgActive >= 0.4 {
-            return L("Ton humeur ne dépend pas que des habitudes — prends soin de toi avant tout.")
+            return L("Ton humeur ne dépend pas que des habitudes. Prends soin de toi avant tout.")
         }
         return L("Continue à noter ton humeur : des tendances vont apparaître.")
     }

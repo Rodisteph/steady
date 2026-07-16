@@ -29,6 +29,14 @@ struct ChallengeView: View {
     /// Gratuit : un seul défi actif à la fois.
     private var canJoinMore: Bool { isPremium || challenges.isEmpty }
 
+    // Connexion Apple Santé (défis « pas », « km », « minutes d'exercice »…).
+    @AppStorage("steady_health_connected") private var healthConnected = false
+    @State private var showHealthHint = false
+    /// Y a-t-il un défi actif piloté par Apple Santé ?
+    private var hasHealthChallenge: Bool {
+        challenges.contains { !$0.isCompleted && manager.isHealthLinked($0) }
+    }
+
     private var available: [ChallengeTemplate] {
         manager.templates.filter { template in
             !challenges.contains { $0.templateID == template.id }
@@ -46,13 +54,19 @@ struct ChallengeView: View {
                     }
                 }
 
+                if hasHealthChallenge && !healthConnected {
+                    healthConnectBanner
+                }
+
                 if !challenges.isEmpty {
                     section("Tes défis") {
                         ForEach(challenges) { challenge in
                             ChallengeCard(
                                 challenge: challenge,
                                 linkedHabitName: linkedName(for: challenge),
-                                isAuto: manager.isAuto(challenge),
+                                // Auto = piloté par une habitude OU par Apple Santé (pas de tap manuel).
+                                isAuto: manager.isAuto(challenge) || manager.isHealthLinked(challenge),
+                                healthLinked: manager.isHealthLinked(challenge),
                                 daysRemaining: manager.daysRemaining(challenge),
                                 expired: manager.isExpired(challenge),
                                 canAdvance: manager.canAdvanceToday(challenge),
@@ -67,7 +81,15 @@ struct ChallengeView: View {
                                     }
                                     manager.abandon(challenge)
                                 },
-                                onInvite: shared.isSignedIn ? { inviteTarget = challenge } : nil
+                                onInvite: shared.isSignedIn ? { inviteTarget = challenge } : nil,
+                                onUndo: (manager.isAuto(challenge) || manager.isHealthLinked(challenge)) ? nil : { amount in
+                                    if challenge.isDaily {
+                                        manager.undoToday(challenge)
+                                    } else {
+                                        manager.retreat(challenge, by: amount)
+                                    }
+                                    pushProgress(challenge)
+                                }
                             )
                         }
                     }
@@ -94,7 +116,7 @@ struct ChallengeView: View {
         .navigationTitle("Défis")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showPremium) {
-            PremiumView(storeManager: store.storeManager)
+            PremiumView(storeManager: store.storeManager, context: .challenge)
         }
         .sheet(item: $pendingTemplate) { template in
             ChallengeHabitPicker(habits: habits) { habit in
@@ -118,6 +140,7 @@ struct ChallengeView: View {
         .onAppear {
             manager.configure(modelContext)
             manager.refresh(challenges, habits: habits)
+            manager.syncHealth(challenges)   // défis « 100 km ce mois » etc. via Apple Santé
         }
         .task {
             invites = await shared.invites()
@@ -147,6 +170,54 @@ struct ChallengeView: View {
             )
         }
         .buttonStyle(.plain)
+    }
+
+    /// Bandeau « Connecter Apple Santé » : apparaît quand un défi est piloté par
+    /// Santé (pas, km, exercice) tant que l'accès n'a pas été accordé.
+    private var healthConnectBanner: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            Label("Défis reliés à Apple Santé", systemImage: "heart.fill")
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(Color.accentDeep)
+            Text("Connecte Apple Santé : tes pas, km et minutes d'exercice comptent tout seuls dans tes défis.")
+                .font(.caption).foregroundStyle(.secondary)
+            Button {
+                connectHealth()
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "heart.fill")
+                    Text("Connecter Apple Santé")
+                }
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Capsule().fill(Color.accentGradient))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(Theme.Spacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .steadyCard()
+        .alert("Autorise Steady dans Santé", isPresented: $showHealthHint) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Ouvre Réglages > Santé > Accès et appareils > Steady et active les catégories pour que tes défis progressent.")
+        }
+    }
+
+    /// Demande l'accès Santé puis relit immédiatement les défis liés.
+    private func connectHealth() {
+        Task {
+            let ok = await HealthManager.shared.requestAuthorization()
+            if ok {
+                healthConnected = true
+                manager.syncHealth(challenges)
+                HapticManager.success()
+            } else {
+                showHealthHint = true   // capacité HealthKit indisponible sur cet appareil
+            }
+        }
     }
 
     /// Carte d'une invitation reçue : accepter ou refuser.

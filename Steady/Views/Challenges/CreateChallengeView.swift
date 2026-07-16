@@ -140,7 +140,7 @@ struct CreateChallengeView: View {
                         let target = isDaily ? dailyTarget : cumulativeTarget
                         let finalUnit = isDaily ? L("jours") : unit.trimmingCharacters(in: .whitespaces)
                         // Quotidien : même marge de temps que les défis du catalogue.
-                        let window = isDaily ? max(dailyTarget + 10, Int(ceil(Double(dailyTarget) * 1.4))) : windowDays
+                        let window = isDaily ? dailyTarget + 3 : windowDays   // même grâce que le catalogue
                         onCreate(cleanTitle, icon, target, finalUnit, isDaily, window, isDaily ? linkedHabit : nil)
                         dismiss()
                     } label: {

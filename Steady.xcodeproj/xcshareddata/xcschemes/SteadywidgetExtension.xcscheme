@@ -31,6 +31,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "0B4A7E7D2FF00C710087B497"
                BuildableName = "Steady.app"
+               BlueprintName = "Steady"
                ReferencedContainer = "container:Steady.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -62,6 +63,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0B4A7E7D2FF00C710087B497"
             BuildableName = "Steady.app"
+            BlueprintName = "Steady"
             ReferencedContainer = "container:Steady.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -97,6 +99,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0B4A7E7D2FF00C710087B497"
             BuildableName = "Steady.app"
+            BlueprintName = "Steady"
             ReferencedContainer = "container:Steady.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

@@ -32,27 +32,27 @@ enum HabitProfile: String, CaseIterable, Identifiable {
         switch self {
         case .health:
             return [
-                (String(localized: "Boire de l'eau"), "drop.fill"),
-                (String(localized: "Bouger 30 min"), "figure.run"),
-                (String(localized: "Bien dormir"), "moon.fill")
+                (L("Boire de l'eau"), "drop.fill"),
+                (L("Bouger 30 min"), "figure.run"),
+                (L("Bien dormir"), "moon.fill")
             ]
         case .learning:
             return [
-                (String(localized: "Lire 10 pages"), "book.fill"),
-                (String(localized: "Réviser"), "pencil"),
-                (String(localized: "Apprendre un mot"), "brain.head.profile")
+                (L("Lire 10 pages"), "book.fill"),
+                (L("Réviser"), "pencil"),
+                (L("Apprendre un mot"), "brain.head.profile")
             ]
         case .wellbeing:
             return [
-                (String(localized: "Méditer"), "brain.head.profile"),
-                (String(localized: "Gratitude"), "heart.fill"),
-                (String(localized: "Respirer"), "leaf.fill")
+                (L("Méditer"), "brain.head.profile"),
+                (L("Gratitude"), "heart.fill"),
+                (L("Respirer"), "leaf.fill")
             ]
         case .productivity:
             return [
-                (String(localized: "Planifier ma journée"), "star.fill"),
-                (String(localized: "Tâche prioritaire"), "bolt.fill"),
-                (String(localized: "Pas d'écran le matin"), "sun.max.fill")
+                (L("Planifier ma journée"), "star.fill"),
+                (L("Tâche prioritaire"), "bolt.fill"),
+                (L("Pas d'écran le matin"), "sun.max.fill")
             ]
         }
     }

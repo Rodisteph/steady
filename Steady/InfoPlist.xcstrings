@@ -1,0 +1,52 @@
+{
+  "sourceLanguage" : "fr",
+  "strings" : {
+    "NSHealthShareUsageDescription" : {
+      "comment" : "Demande d'accès aux données Apple Santé",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steady reads some Health data (steps, distance, water, mindfulness, exercise minutes) to automatically check off the habits you link to it. This data stays on your device."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steady lee algunos datos de Salud (pasos, distancia, agua, meditación, minutos de ejercicio) para validar automáticamente los hábitos que vincules. Estos datos permanecen en tu dispositivo."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Steady lê alguns dados do Saúde (passos, distância, água, meditação, minutos de exercício) para validar automaticamente os hábitos que associares. Estes dados ficam no teu dispositivo."
+          }
+        }
+      }
+    },
+    "NSUserTrackingUsageDescription" : {
+      "comment" : "Prompt App Tracking Transparency (publicités personnalisées)",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steady uses this identifier to show you more relevant ads. You can decline: the app works exactly the same, with less targeted ads."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steady usa este identificador para mostrarte anuncios más relevantes. Puedes rechazarlo: la app funciona exactamente igual, con anuncios menos personalizados."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Steady usa este identificador para te mostrar anúncios mais relevantes. Podes recusar: a app funciona exatamente igual, com anúncios menos direcionados."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

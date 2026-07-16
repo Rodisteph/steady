@@ -30,11 +30,32 @@ final class Habit {
     var healthMetricRaw: String = ""
     var healthMetric: HealthMetric? { HealthMetric(rawValue: healthMetricRaw) }
 
+    /// Catégorie (« genre ») — brute pour SwiftData, vide = Autre.
+    var categoryRaw: String = ""
+    var category: HabitCategory {
+        get { HabitCategory(rawValue: categoryRaw) ?? .other }
+        set { categoryRaw = newValue.rawValue }
+    }
+
+    /// Priorité : 2 = haute, 1 = normale (défaut), 0 = basse.
+    var priorityRaw: Int = 1
+    var priority: HabitPriority {
+        get { HabitPriority(rawValue: priorityRaw) ?? .normal }
+        set { priorityRaw = newValue.rawValue }
+    }
+
     /// Habitude chiffrée (avec compteur) ?
     var isCounter: Bool { dailyGoal > 1 }
 
-    @Relationship(deleteRule: .cascade)
-    var records: [DailyRecord] = []
+    /// Stockage réel de la relation. CloudKit EXIGE que les relations to-many
+    /// soient optionnelles (sinon crash à l'init du conteneur, non rattrapable).
+    /// On garde ce champ privé et on expose `records` non-optionnel juste en dessous
+    /// → les 41 usages existants ne changent pas.
+    @Relationship(deleteRule: .cascade, inverse: \DailyRecord.habit)
+    var recordsStore: [DailyRecord]?
+
+    /// Accès pratique et non-optionnel à l'historique (lecture seule).
+    var records: [DailyRecord] { recordsStore ?? [] }
 
     /// L'habitude est-elle prévue ce jour-là ? (vide = tous les jours)
     func isScheduled(on date: Date) -> Bool {

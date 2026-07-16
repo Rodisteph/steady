@@ -34,7 +34,14 @@ final class StoreManager {
     /// SEULE porte d'entrée du droit Premium : achat OU essai pub encore valide.
     /// Toutes les vues existantes lisent déjà cette propriété → l'essai 24 h est
     /// honoré partout sans toucher une seule vue.
-    var isPremium: Bool { hasActivePurchase || adTrialUntil > .now }
+    var isPremium: Bool {
+        #if DEBUG
+        // Test seulement : `-forcePremium` déverrouille les fonctions Premium
+        // (Santé, thèmes, stats). Jamais actif en production.
+        if ProcessInfo.processInfo.arguments.contains("-forcePremium") { return true }
+        #endif
+        return hasActivePurchase || adTrialUntil > .now
+    }
 
     /// Accordé UNIQUEMENT par le callback de récompense AdMob (via EntitlementStore).
     func grantAdTrial(hours: Int = 24) {

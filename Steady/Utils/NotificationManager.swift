@@ -98,6 +98,9 @@ final class NotificationManager {
 
         // 3) Bilan du dimanche soir (pour tout le monde).
         scheduleWeeklyDigest()
+
+        // 4) Petit check du soir : seulement s'il reste des habitudes à valider.
+        scheduleEveningCheck()
     }
 
     // MARK: - Rappels par habitude (heure individuelle)
@@ -132,6 +135,54 @@ final class NotificationManager {
             count += 1
         }
         return count
+    }
+
+    // MARK: - Check du soir (il reste des habitudes à valider)
+
+    /// Rappel à 20h30, replanifié à chaque validation :
+    /// - aujourd'hui, avec le compte exact restant — il disparaît dès que tout est validé ;
+    /// - demain, en version générique (au cas où l'app ne serait pas ouverte de la journée).
+    /// Jamais un jour de repos : la bienveillance d'abord.
+    private func scheduleEveningCheck() {
+        let cal = Calendar.current
+        let now = Date()
+
+        // Aujourd'hui : nombre précis d'habitudes prévues non validées.
+        if !RestDayStore.contains(now) {
+            let remaining = habits.filter { habit in
+                guard habit.isScheduled(on: now) else { return false }
+                let doneToday = habit.records.first { cal.isDate($0.date, inSameDayAs: now) }
+                    .map { $0.count >= habit.dailyGoal } ?? false
+                return !doneToday
+            }.count
+
+            var comps = cal.dateComponents([.year, .month, .day], from: now)
+            comps.hour = 20; comps.minute = 30
+            if remaining > 0, let fireDate = cal.date(from: comps), fireDate > now {
+                let content = UNMutableNotificationContent()
+                content.title = "Steady"
+                content.body = remaining == 1
+                    ? L("Petit check du soir : il te reste 1 habitude à valider 🌿")
+                    : L("Petit check du soir : il te reste \(remaining) habitudes à valider 🌿")
+                content.sound = .default
+                content.categoryIdentifier = "steady_evening_check"
+                let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+                center.add(UNNotificationRequest(identifier: "steady_evening_check_today", content: content, trigger: trigger))
+            }
+        }
+
+        // Demain : version générique, remplacée par la version précise dès que l'app s'ouvre.
+        if let tomorrow = cal.date(byAdding: .day, value: 1, to: now) {
+            var comps = cal.dateComponents([.year, .month, .day], from: tomorrow)
+            comps.hour = 20; comps.minute = 30
+            let content = UNMutableNotificationContent()
+            content.title = "Steady"
+            content.body = L("Petit check du soir : tes habitudes t'attendent 🌿")
+            content.sound = .default
+            content.categoryIdentifier = "steady_evening_check"
+            let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+            center.add(UNNotificationRequest(identifier: "steady_evening_check_tomorrow", content: content, trigger: trigger))
+        }
     }
 
     // MARK: - Rappel quotidien global (repli, guilt-free)

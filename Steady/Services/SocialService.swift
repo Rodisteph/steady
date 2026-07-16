@@ -19,8 +19,29 @@ protocol SocialService {
     func cheer(_ friend: UserProfile) async
     func leaderboard(kind: LeaderboardKind, me: UserProfile) async -> [LeaderboardEntry]
     func groups() async -> [SocialGroup]
+    /// Crée un groupe avec moi + les amis choisis comme membres.
+    func createGroup(name: String, icon: String, friends: [UserProfile]) async throws
+    /// Profils des membres d'un groupe (pseudo, niveau, série).
+    func members(of group: SocialGroup) async -> [UserProfile]
+    /// Ajoute des amis à un groupe existant.
+    func addMembers(_ friends: [UserProfile], to group: SocialGroup) async throws
     func messages(in group: SocialGroup) async -> [ChatMessage]
     func send(_ text: String, to group: SocialGroup) async
+
+    // MARK: - Modération (règle App Store 1.2)
+
+    /// Signale un message offensant. Le contenu est copié côté serveur pour
+    /// pouvoir être examiné même si l'auteur le supprime ensuite.
+    func report(message: ChatMessage, in group: SocialGroup, reason: ReportReason) async
+    /// Signale un utilisateur (pseudo/avatar offensant).
+    func report(user: UserProfile, reason: ReportReason) async
+    /// Bloque un utilisateur : ses messages et son profil disparaissent chez moi.
+    func block(_ uid: String) async
+    func unblock(_ uid: String) async
+    /// uid que j'ai bloqués (pour filtrer messages, amis et classement).
+    func blockedUIDs() async -> Set<String>
+    /// Profils que j'ai bloqués (pour l'écran « Utilisateurs bloqués »).
+    func blockedUsers() async -> [UserProfile]
 }
 
 enum SocialError: LocalizedError {
@@ -108,12 +129,49 @@ final class MockSocialService: SocialService {
     }
 
     func groups() async -> [SocialGroup] { _groups }
-    func messages(in group: SocialGroup) async -> [ChatMessage] { _messages[group.id] ?? [] }
+
+    func createGroup(name: String, icon: String, friends: [UserProfile]) async throws {
+        let clean = name.trimmingCharacters(in: .whitespaces)
+        guard !clean.isEmpty else { return }
+        _groups.append(SocialGroup(id: UUID().uuidString, name: clean, icon: icon,
+                                   memberCount: friends.count + 1, memberIDs: friends.map(\.id)))
+    }
+
+    func members(of group: SocialGroup) async -> [UserProfile] {
+        // Démo : les premiers amis fictifs.
+        Array(_friends.prefix(max(1, group.memberCount)))
+    }
+
+    func addMembers(_ friends: [UserProfile], to group: SocialGroup) async throws {
+        guard let idx = _groups.firstIndex(where: { $0.id == group.id }) else { return }
+        let newIDs = friends.map(\.id).filter { !_groups[idx].memberIDs.contains($0) }
+        _groups[idx].memberIDs.append(contentsOf: newIDs)
+        _groups[idx].memberCount += newIDs.count
+    }
+
+    func messages(in group: SocialGroup) async -> [ChatMessage] {
+        (_messages[group.id] ?? []).filter { !_blocked.contains($0.authorUID) }
+    }
     func send(_ text: String, to group: SocialGroup) async {
         let clean = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !clean.isEmpty else { return }
         _messages[group.id, default: []].append(
-            ChatMessage(id: UUID().uuidString, authorName: "Moi", text: clean, date: .now, isMine: true)
+            ChatMessage(id: UUID().uuidString, authorName: "Moi", text: clean, date: .now, isMine: true, authorUID: "me")
         )
     }
+
+    // MARK: - Modération (démo : en mémoire)
+
+    private var _blocked: Set<String> = []
+
+    func report(message: ChatMessage, in group: SocialGroup, reason: ReportReason) async {
+        print("📣 [démo] message signalé : \(message.id) — \(reason.rawValue)")
+    }
+    func report(user: UserProfile, reason: ReportReason) async {
+        print("📣 [démo] utilisateur signalé : \(user.username) — \(reason.rawValue)")
+    }
+    func block(_ uid: String) async { _blocked.insert(uid) }
+    func unblock(_ uid: String) async { _blocked.remove(uid) }
+    func blockedUIDs() async -> Set<String> { _blocked }
+    func blockedUsers() async -> [UserProfile] { _friends.filter { _blocked.contains($0.id) } }
 }

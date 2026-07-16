@@ -43,6 +43,10 @@ struct SocialGroup: Identifiable, Hashable {
     var name: String
     var icon: String
     var memberCount: Int
+    /// uid des membres (pour afficher leurs profils).
+    var memberIDs: [String] = []
+    /// Date du dernier message (pour la pastille « non lu »).
+    var lastMessageAt: Date? = nil
 }
 
 /// Message de chat de groupe.
@@ -52,4 +56,6 @@ struct ChatMessage: Identifiable, Hashable {
     let text: String
     let date: Date
     let isMine: Bool
+    /// uid de l'auteur : nécessaire pour le signalement et le blocage (règle 1.2).
+    var authorUID: String = ""
 }

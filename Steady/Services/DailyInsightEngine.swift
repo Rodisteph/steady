@@ -75,7 +75,7 @@ struct DailyInsightEngine {
         // --- Régularité / tendance --------------------------------------
         let trend = analytics.trendScore(active)
         if trend > 0 { add("chart.line.uptrend.xyaxis", L("Ta régularité progresse (+\(trend) cette semaine). Continue comme ça.")) }
-        if trend < 0 { add("arrow.down.right", L("Petit creux cette semaine. Pas de culpabilité — on repart en douceur.")) }
+        if trend < 0 { add("arrow.down.right", L("Petit creux cette semaine. Pas de culpabilité, on repart en douceur.")) }
         let rate = analytics.completionRate(active, days: 30)
         if rate >= 80 { add("checkmark.seal.fill", L("\(rate)% de réussite sur 30 jours. Tu es en pleine forme.")) }
         else if rate >= 50 { add("checkmark.circle.fill", L("\(rate)% de réussite ce mois-ci. Chaque pas compte.")) }
@@ -106,7 +106,7 @@ struct DailyInsightEngine {
         let scheduledToday = active.filter { $0.isScheduled(on: today) }
         if !scheduledToday.isEmpty {
             let doneToday = scheduledToday.filter { store.isCompleted($0, on: today) }.count
-            if doneToday == 0 { add("sunrise.fill", L("Zéro validation pour l'instant. Première case cochée dans les 30 minutes — chiche ?")) }
+            if doneToday == 0 { add("sunrise.fill", L("Zéro validation pour l'instant. Première case cochée dans les 30 minutes, chiche ?")) }
             else if doneToday < scheduledToday.count { add("figure.walk", L("\(doneToday)/\(scheduledToday.count) aujourd'hui. Tu ne vas pas t'arrêter si près du sans-faute ?")) }
         }
 

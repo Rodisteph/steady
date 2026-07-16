@@ -38,6 +38,15 @@ struct HabitCardView: View {
                     if streak > 0 {
                         streakChip
                     }
+                    if habit.category != .other {
+                        categoryChip
+                    }
+                    if habit.priority == .high {
+                        Image(systemName: "exclamationmark.circle.fill")
+                            .font(.caption)
+                            .foregroundStyle(isCompleted ? .white : .orange)
+                            .accessibilityLabel("Priorité haute")
+                    }
                 }
             }
 
@@ -58,8 +67,12 @@ struct HabitCardView: View {
             } label: {
                 Label("Détails", systemImage: "chart.bar.doc.horizontal")
             }
-            ShareLink(item: L("Je construis l'habitude « \(habit.name) » sur Steady 🌱 Fais-la avec moi !")) {
-                Label("Inviter un ami", systemImage: "person.badge.plus")
+            if habit.isCounter {
+                Button {
+                    store.addCount(habit, by: 0, reset: true)
+                } label: {
+                    Label("Remettre à zéro", systemImage: "arrow.counterclockwise")
+                }
             }
             Button(role: .destructive) {
                 onDelete()
@@ -100,6 +113,18 @@ struct HabitCardView: View {
         .foregroundStyle(isCompleted ? Color.white : Color.steadyFlame)
     }
 
+    private var categoryChip: some View {
+        HStack(spacing: 3) {
+            Circle()
+                .fill(isCompleted ? Color.white : habit.category.color)
+                .frame(width: 7, height: 7)
+            Text(habit.category.titleText)
+        }
+        .font(.caption.weight(.semibold))
+        .foregroundStyle(isCompleted ? Color.white.opacity(0.9) : .secondary)
+        .lineLimit(1)
+    }
+
     private var counterChip: some View {
         Text("\(dayCount)/\(habit.dailyGoal)\(habit.unit.isEmpty ? "" : " \(habit.unit)")")
             .font(.caption.weight(.bold))
@@ -116,22 +141,16 @@ struct HabitCardView: View {
                     .foregroundStyle(.white)
                     .symbolEffect(.bounce, value: isCompleted)
             } else if habit.isCounter {
-                // Saisie rapide : tap sur la pastille = menu (+5, +10, terminer) — fini les 20 taps.
-                Menu {
-                    Button { store.addCount(habit, by: 1) } label: { Label("+1", systemImage: "plus") }
-                    Button { store.addCount(habit, by: 5) } label: { Label("+5", systemImage: "plus.circle") }
-                    Button { store.addCount(habit, by: 10) } label: { Label("+10", systemImage: "plus.circle.fill") }
-                    Button { store.addCount(habit, by: nil) } label: { Label("Marquer comme fait", systemImage: "checkmark.circle.fill") }
-                    Button(role: .destructive) { store.addCount(habit, by: 0, reset: true) } label: { Label("Remettre à zéro", systemImage: "arrow.counterclockwise") }
+                // Un tap = marquer comme fait directement (remise à zéro via l'appui long).
+                Button {
+                    store.addCount(habit, by: nil)
                 } label: {
-                    Text("\(dayCount)")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color.accentDeep)
-                        .contentTransition(.numericText())
-                        .frame(width: 34, height: 34)
-                        .background(Circle().strokeBorder(Color.accentDeep.opacity(0.4), lineWidth: 2))
+                    Image(systemName: "circle")
+                        .font(.system(size: 26, weight: .semibold))
+                        .foregroundStyle(Color.secondary.opacity(0.4))
                 }
-                .accessibilityLabel("Saisie rapide : \(dayCount) sur \(habit.dailyGoal)")
+                .buttonStyle(.plain)
+                .accessibilityLabel("Marquer « \(habit.name) » comme fait")
             } else {
                 Image(systemName: "circle")
                     .font(.system(size: 26, weight: .semibold))

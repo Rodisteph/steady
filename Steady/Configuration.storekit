@@ -1,4 +1,14 @@
 {
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
   "identifier" : "3131C8ED-71B1-47A7-9A4A-4D32563D5073",
   "nonRenewingSubscriptions" : [
 
@@ -12,7 +22,7 @@
         {
           "description" : "Débloque tout Steady à vie, en un seul paiement.",
           "displayName" : "Steady Premium à vie",
-          "locale" : "fr_FR"
+          "locale" : "fr"
         },
         {
           "description" : "Unlock all of Steady forever, with a single payment.",
@@ -27,15 +37,24 @@
   ],
   "settings" : {
     "_applicationInternalID" : "0",
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
     "_developerTeamID" : "V3BB9YS6N2",
+    "_disableDialogs" : false,
     "_failTransactionsEnabled" : false,
     "_lastSynchronizedDate" : 0,
-    "_locale" : "fr_FR",
+    "_locale" : "fr",
+    "_renewalBillingIssuesEnabled" : false,
     "_storefront" : "FRA",
     "_storeKitErrors" : [
 
-    ]
+    ],
+    "_timeRate" : 0
   },
+  "subscriptionBundleGroups" : [
+
+  ],
   "subscriptionGroups" : [
     {
       "id" : "7E394280-8372-4198-BF2A-D71D17EF2255",
@@ -48,19 +67,30 @@
           "adHocOffers" : [
 
           ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "2.99",
+              "displayPrice" : "2.99",
+              "internalID" : "0578EFB1",
+              "isEnabled" : true
+            }
+          ],
           "codeOffers" : [
 
           ],
-          "displayPrice" : "3.99",
+          "displayPrice" : "2.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "8B60B2D1-44A9-4F0E-AF65-943E55DF17FC",
-          "introductoryOffer" : null,
+          "introductoryOffers" : [
+
+          ],
           "localizations" : [
             {
               "description" : "Tout Steady, facturé chaque mois.",
               "displayName" : "Premium Mensuel",
-              "locale" : "fr_FR"
+              "locale" : "fr"
             },
             {
               "description" : "All of Steady, billed monthly.",
@@ -72,11 +102,23 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Premium Mensuel",
           "subscriptionGroupID" : "7E394280-8372-4198-BF2A-D71D17EF2255",
-          "type" : "RecurringSubscription"
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
           "adHocOffers" : [
 
+          ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "19.99",
+              "displayPrice" : "19.99",
+              "internalID" : "8CC5A99F",
+              "isEnabled" : true
+            }
           ],
           "codeOffers" : [
 
@@ -85,12 +127,14 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "2E1F3F84-8C87-42A2-A223-7301081CA75B",
-          "introductoryOffer" : null,
+          "introductoryOffers" : [
+
+          ],
           "localizations" : [
             {
               "description" : "Tout Steady, facturé chaque année. 7 jours d'essai gratuit.",
               "displayName" : "Premium Annuel",
-              "locale" : "fr_FR"
+              "locale" : "fr"
             },
             {
               "description" : "All of Steady, billed yearly. 7-day free trial.",
@@ -102,13 +146,19 @@
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "Premium Annuel",
           "subscriptionGroupID" : "7E394280-8372-4198-BF2A-D71D17EF2255",
-          "type" : "RecurringSubscription"
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         }
       ]
     }
   ],
+  "subscriptionSuiteGroups" : [
+
+  ],
   "version" : {
-    "major" : 4,
-    "minor" : 0
+    "major" : 6,
+    "minor" : 3
   }
 }

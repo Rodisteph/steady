@@ -21,7 +21,7 @@ struct JournalAIService {
     // Thèmes détectés (FR + quelques mots EN courants).
     private let positiveThemes: [Theme] = [
         Theme(keywords: ["sport", "courir", "couru", "gym", "muscu", "marche", "vélo", "workout", "run"],
-              positive: "Tu as bougé ton corps — excellent pour le moral."),
+              positive: "Tu as bougé ton corps, excellent pour le moral."),
         Theme(keywords: ["médit", "respir", "calme", "yoga", "pause", "mindful"],
               positive: "Tu as pris un moment pour t'apaiser."),
         Theme(keywords: ["fier", "réussi", "accompli", "validé", "fini", "terminé", "proud", "done"],
@@ -29,22 +29,22 @@ struct JournalAIService {
         Theme(keywords: ["gratitude", "reconnaissant", "merci", "chance", "grateful"],
               positive: "Tu as cultivé la gratitude aujourd'hui."),
         Theme(keywords: ["ami", "famille", "proche", "ensemble", "appel", "friend", "family"],
-              positive: "Tu as nourri tes liens — ça compte beaucoup."),
+              positive: "Tu as nourri tes liens, ça compte beaucoup."),
         Theme(keywords: ["dormi", "sommeil", "reposé", "repos", "sleep", "rest"],
               positive: "Tu as pris soin de ton repos.")
     ]
 
     private let negativeThemes: [Theme] = [
         Theme(keywords: ["fatigué", "fatigue", "épuisé", "tired", "exhausted"],
-              positive: "Tu sembles fatigué — accorde-toi du vrai repos demain."),
+              positive: "Tu sembles fatigué. Accorde-toi du vrai repos demain."),
         Theme(keywords: ["stress", "anxieux", "anxiété", "pression", "stressed", "anxious"],
-              positive: "Le stress était présent — une respiration lente peut aider."),
+              positive: "Le stress était présent. Une respiration lente peut aider."),
         Theme(keywords: ["raté", "manqué", "échoué", "abandonné", "pas réussi", "failed", "missed"],
-              positive: "Un objectif a glissé — recommence petit, sans te juger."),
+              positive: "Un objectif a glissé. Recommence petit, sans te juger."),
         Theme(keywords: ["procrastin", "remis", "flemme", "reporté", "lazy"],
-              positive: "La procrastination a pointé — découpe la tâche en mini-pas."),
+              positive: "La procrastination a pointé. Découpe la tâche en mini-pas."),
         Theme(keywords: ["triste", "déçu", "mal", "down", "sad"],
-              positive: "Journée plus lourde émotionnellement — sois doux avec toi.")
+              positive: "Journée plus lourde émotionnellement. Sois doux avec toi.")
     ]
 
     private let motivations: [String] = [
@@ -67,11 +67,11 @@ struct JournalAIService {
         // Résumé selon le sentiment global.
         let summary: String
         if score > 0 { summary = L("Une journée plutôt positive d'après tes mots.") }
-        else if score < 0 { summary = L("Une journée difficile — et c'est totalement ok.") }
+        else if score < 0 { summary = L("Une journée difficile, et c'est totalement ok.") }
         else { summary = L("Une journée en demi-teinte, avec du bon à retenir.") }
 
         var positives = pos.map { $0.positive }
-        if positives.isEmpty { positives = [L("Tu as pris le temps d'écrire ce soir — déjà une belle habitude.")] }
+        if positives.isEmpty { positives = [L("Tu as pris le temps d'écrire ce soir, déjà une belle habitude.")] }
 
         var improvements = neg.map { $0.positive }
         if improvements.isEmpty { improvements = [L("Rien de lourd ne ressort. Continue sur cette lancée.")] }

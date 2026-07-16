@@ -15,6 +15,8 @@ struct HabitDetailView: View {
     @State private var goal = 1
     @State private var unit = ""
     @State private var healthMetric: HealthMetric?
+    @State private var category: HabitCategory = .other
+    @State private var priority: HabitPriority = .normal
     @State private var showIconPicker = false
     @State private var showPremium = false
     @State private var healthToday: Double?
@@ -38,6 +40,7 @@ struct HabitDetailView: View {
                     if store.canRepairYesterday(for: habit) {
                         repairCard
                     }
+                    organizeCard
                     scheduleCard
                     reminderCard
                     healthCard
@@ -65,9 +68,11 @@ struct HabitDetailView: View {
                 goal = habit.dailyGoal
                 unit = habit.unit
                 healthMetric = habit.healthMetric
+                category = habit.category
+                priority = habit.priority
             }
             .sheet(isPresented: $showPremium) {
-                PremiumView(storeManager: store.storeManager)
+                PremiumView(storeManager: store.storeManager, context: .health)
             }
             .confirmationDialog("Supprimer cette habitude ?", isPresented: $showDeleteConfirm, titleVisibility: .visible) {
                 Button("Supprimer", role: .destructive) {
@@ -93,7 +98,7 @@ struct HabitDetailView: View {
             Label("Ta série s'est arrêtée hier", systemImage: "flame.fill")
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(Color.steadyFlame)
-            Text("Tu avais \(lost) jours d'affilée. Protège la journée d'hier pour la faire repartir — elle comptera comme un jour de repos.")
+            Text("Tu avais \(lost) jours d'affilée. Protège la journée d'hier pour la faire repartir : elle comptera comme un jour de repos.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -129,6 +134,66 @@ struct HabitDetailView: View {
             RoundedRectangle(cornerRadius: Theme.Radius.lg)
                 .fill(Color.steadyFlame.opacity(0.10))
         )
+    }
+
+    // MARK: - Organisation (catégorie + priorité)
+
+    /// Genre + priorité : alimentent les bulles et le tri de l'écran principal.
+    private var organizeCard: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            Text("Organisation").font(.headline)
+
+            HStack {
+                Label {
+                    Text("Catégorie").foregroundStyle(.primary)
+                } icon: {
+                    Image(systemName: category.icon)
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 30, height: 30)
+                        .background(RoundedRectangle(cornerRadius: 8).fill(category.color))
+                }
+                Spacer()
+                Menu {
+                    ForEach(HabitCategory.allCases) { c in
+                        Button {
+                            category = c
+                            store.setOrganization(for: habit, category: c, priority: priority)
+                        } label: {
+                            Label(c.title, systemImage: c.icon)
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(category.title)
+                        Image(systemName: "chevron.up.chevron.down").font(.caption2)
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.accentDeep)
+                }
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                Text("Priorité").font(.subheadline.weight(.medium))
+                Picker("", selection: $priority) {
+                    ForEach(HabitPriority.allCases.reversed()) { p in
+                        Text(p.title).tag(p)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .onChange(of: priority) { _, newValue in
+                    store.setOrganization(for: habit, category: category, priority: newValue)
+                }
+                Text("Les priorités hautes remontent en tête de liste, avec un repère orange.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(Theme.Spacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .steadyCard()
     }
 
     // MARK: - Sous-vues
@@ -313,8 +378,30 @@ struct HabitDetailView: View {
                 Text("Quand cette donnée Santé atteint le seuil dans la journée, l'habitude se valide toute seule. Tu peux aussi la cocher à la main.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            } else if isPremium {
+                Text("Lie cette habitude à Santé (pas, distance, eau, méditation, exercice, calories) : elle se validera automatiquement quand ton objectif du jour est atteint.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                // Suggestion selon le nom de l'habitude (ex. « Courir » → Distance).
+                if let suggested = HealthMetric.suggestion(forName: habit.name), suggested != healthMetric {
+                    Button {
+                        withAnimation { healthMetric = suggested }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "wand.and.stars")
+                            Text("Suggéré : \(suggested.titleText)")
+                        }
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Color.accentDeep)
+                        .padding(.horizontal, 12).padding(.vertical, 7)
+                        .background(Capsule().fill(Color.brandAccent.opacity(0.15)))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 2)
+                }
             } else {
-                Text("Lie cette habitude à l'app Santé (eau, méditation ou pas) : elle se validera automatiquement quand ton objectif du jour est atteint.")
+                Text("Passe Premium pour relier tes habitudes à Santé : « Courir » se valide via ta distance, « Boire de l'eau » via ton hydratation, etc.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -340,8 +427,10 @@ struct HabitDetailView: View {
     private func healthUnit(_ metric: HealthMetric) -> String {
         switch metric {
         case .water: return L("verres")
-        case .mindful: return L("min")
+        case .mindful, .exercise: return L("min")
         case .steps: return L("pas")
+        case .distance: return L("km")
+        case .energy: return L("kcal")
         }
     }
 

@@ -30,7 +30,7 @@ struct AdvancedStatsContent: View {
         return LazyVGrid(columns: [GridItem(.flexible(), spacing: Theme.Spacing.md), GridItem(.flexible())], spacing: Theme.Spacing.md) {
             StatTile(value: "\(analytics.completionRate(habits, days: 30))%", label: "Réussite sur 30 jours", icon: "checkmark.seal.fill", tint: .green)
             StatTile(value: "\(analytics.consistencyScore(habits))%", label: "Régularité", icon: "waveform.path.ecg", tint: .accentDeep)
-            StatTile(value: "\(longestBest) j", label: "Record de série", icon: "trophy.fill", tint: .steadyFlame)
+            StatTile(value: L("\(longestBest) j"), label: "Record de série", icon: "trophy.fill", tint: .steadyFlame)
             trendTile(trend)
         }
     }

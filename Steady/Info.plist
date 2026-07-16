@@ -2,18 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
-	</array>
-	<!-- App ID AdMob (≠ ad unit ID !). Valeur de TEST Google pour l'instant :
-	     remplace-la par ton App ID de prod (AdMob → Paramètres de l'app)
-	     AVANT toute soumission App Store. Sans cette clé, le SDK crashe au start. -->
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-3940256099942544~1458002511</string>
-	<!-- SKAdNetwork : attribution d'installations sans IDFA.
-	     Liste officielle Google (developers.google.com/admob/ios/privacy/strategies,
-	     mise à jour 2026-06-30). -->
+	<string>ca-app-pub-3090498892331333~4420720605</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Steady lit certaines données de Santé (pas, distance, eau, méditation, minutes d'exercice) pour valider automatiquement les habitudes que tu y relies. Ces données restent sur ton appareil.</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Steady utilise cet identifiant pour t'afficher des publicités plus pertinentes. Tu peux refuser : l'app fonctionne exactement pareil, avec des publicités moins ciblées.</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>
@@ -216,6 +214,10 @@
 			<key>SKAdNetworkIdentifier</key>
 			<string>3qcr597p9d.skadnetwork</string>
 		</dict>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
 	</array>
 </dict>
 </plist>

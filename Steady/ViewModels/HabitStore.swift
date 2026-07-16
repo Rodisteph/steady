@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import UIKit
 import WidgetKit
 
 @MainActor
@@ -52,6 +53,7 @@ final class HabitStore {
         guard let context = context else { return }
         let count = (try? context.fetchCount(FetchDescriptor<Habit>())) ?? 0
         let habit = Habit(name: name, icon: icon, colorHex: colorHex, sortIndex: count)
+        habit.category = HabitCategory.suggestion(forName: name)   // auto-classée (modifiable)
         context.insert(habit)
         try context.save()
 
@@ -64,7 +66,9 @@ final class HabitStore {
         guard let context = context else { return }
         let existing = (try? context.fetchCount(FetchDescriptor<Habit>())) ?? 0
         for (index, h) in profile.habits.enumerated() {
-            context.insert(Habit(name: h.name, icon: h.icon, sortIndex: existing + index))
+            let habit = Habit(name: h.name, icon: h.icon, sortIndex: existing + index)
+            habit.category = HabitCategory.suggestion(forName: h.name)
+            context.insert(habit)
         }
         try? context.save()
         refreshNotifications()   // met aussi le widget à jour
@@ -78,6 +82,7 @@ final class HabitStore {
             let habit = Habit(name: spec.name, icon: spec.icon, sortIndex: count)
             habit.dailyGoal = max(1, spec.goal)
             habit.unit = spec.unit
+            habit.category = HabitCategory.suggestion(forName: spec.name)
             context.insert(habit)
             count += 1
         }
@@ -132,12 +137,19 @@ final class HabitStore {
         try? context.save()
         HapticManager.lightImpact()
 
-        // Gamification : récompense quand l'habitude vient d'être complétée.
+        // Gamification : récompense quand l'habitude vient d'être complétée
+        // (une seule fois par habitude et par jour — pas de farm en cochant/décochant).
         if !wasCompleted && isCompleted(habit, on: date) {
-            GamificationManager.shared.awardCompletion(streak: currentStreak(for: habit))
+            GamificationManager.shared.awardCompletion(streak: currentStreak(for: habit), key: rewardKey(habit, date), multiplier: storeManager.isPremium ? 2 : 1)
         }
 
         refreshNotifications()   // met aussi le widget à jour
+    }
+
+    /// Clé de récompense unique par habitude et par jour.
+    private func rewardKey(_ habit: Habit, _ date: Date) -> String {
+        let day = Calendar.current.startOfDay(for: date)
+        return "\(habit.id.uuidString)|\(Int(day.timeIntervalSince1970))"
     }
 
     /// Saisie rapide pour les habitudes chiffrées : ajoute d'un coup (+5, +10…),
@@ -165,7 +177,7 @@ final class HabitStore {
         HapticManager.lightImpact()
 
         if !wasCompleted && isCompleted(habit, on: date) {
-            GamificationManager.shared.awardCompletion(streak: currentStreak(for: habit))
+            GamificationManager.shared.awardCompletion(streak: currentStreak(for: habit), key: rewardKey(habit, date), multiplier: storeManager.isPremium ? 2 : 1)
             HapticManager.success()
         }
 
@@ -176,6 +188,29 @@ final class HabitStore {
         guard let context = context else { return }
         context.delete(habit)
         try? context.save()
+        refreshNotifications()
+    }
+
+    /// Récupère une habitude par son id (pour Exam Mode : habitude de révision liée).
+    func habit(with id: UUID) throws -> Habit? {
+        guard let context = context else { return nil }
+        return try context.fetch(FetchDescriptor<Habit>(predicate: #Predicate { $0.id == id })).first
+    }
+
+    /// Valide une habitude à la fin d'une session de révision (n'enlève jamais rien).
+    func markDoneFromFocus(_ habit: Habit) {
+        guard let context = context else { return }
+        let day = Calendar.current.startOfDay(for: Date())
+        if let record = habit.records.first(where: { Calendar.current.isDate($0.date, inSameDayAs: day) }) {
+            record.count = max(record.count, habit.dailyGoal)
+            record.status = .completed
+        } else {
+            context.insert(DailyRecord(date: day, status: .completed, count: habit.dailyGoal, habit: habit))
+        }
+        try? context.save()
+        GamificationManager.shared.awardCompletion(streak: currentStreak(for: habit),
+                                                   key: rewardKey(habit, Date()),
+                                                   multiplier: storeManager.isPremium ? 2 : 1)
         refreshNotifications()
     }
     
@@ -209,15 +244,26 @@ final class HabitStore {
         }
         let weeklyTotal = habits.reduce(0) { $0 + weeklySummary(for: $1) }
         let bestStreak = habits.map { currentStreak(for: $0) }.max() ?? 0
+        // Le widget suit le thème choisi dans l'app.
+        let gradient = ThemeManager.shared.palette.gradientColors
         let snapshot = SteadyWidgetSnapshot(
             completed: completedTodayCount(among: todays),
             total: todays.count,
             weeklyTotal: weeklyTotal,
             bestStreak: bestStreak,
-            habits: Array(items)
+            habits: Array(items),
+            gradientTop: Self.hexString(gradient.first ?? .gray),
+            gradientBottom: Self.hexString(gradient.last ?? .gray)
         )
         SteadyWidgetStore.save(snapshot)
         WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    /// Convertit une couleur SwiftUI en hex "RRGGBB" (pour l'instantané du widget).
+    private static func hexString(_ color: Color) -> String {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        UIColor(color).getRed(&r, green: &g, blue: &b, alpha: &a)
+        return String(format: "%02X%02X%02X", Int(round(r * 255)), Int(round(g * 255)), Int(round(b * 255)))
     }
 
     /// Applique les validations faites depuis le widget interactif (file d'attente App Group).
@@ -374,6 +420,13 @@ final class HabitStore {
         try? context.save()
         HapticManager.lightImpact()
         refreshNotifications()   // met aussi le widget à jour
+    }
+
+    /// Range l'habitude : catégorie (« genre ») + priorité — pour les bulles et le tri.
+    func setOrganization(for habit: Habit, category: HabitCategory, priority: HabitPriority) {
+        habit.category = category
+        habit.priority = priority
+        try? context?.save()
     }
 
     /// Règle l'objectif quotidien (1 = simple) et l'unité d'une habitude.
@@ -553,22 +606,32 @@ final class HabitStore {
     /// Déclenché uniquement par l'argument de lancement `-seedDemo` — jamais en production.
     func seedDemoData() {
         guard let context else { return }
-        let demos: [(name: String, icon: String, offsets: [Int])] = [
-            ("Méditer", "brain.head.profile", [0, 1, 2, 3, 4, 5, 6]),
-            ("Lire 10 pages", "book.fill", [0, 1, 2, 4, 5, 6]),
-            ("Boire de l'eau", "drop.fill", [0, 1, 2, 3, 6]),
-            ("Courir", "figure.run", [1, 3, 5])
+        let demos: [(name: String, icon: String, offsets: [Int], cat: HabitCategory, prio: HabitPriority)] = [
+            ("Méditer", "brain.head.profile", [0, 1, 2, 3, 4, 5, 6], .mind, .high),
+            ("Lire 10 pages", "book.fill", [0, 1, 2, 4, 5, 6], .mind, .normal),
+            ("Boire de l'eau", "drop.fill", [0, 1, 2, 3, 6], .health, .high),
+            ("Courir", "figure.run", [1, 3, 5], .fitness, .normal),
+            ("Ranger 10 min", "house.fill", [0, 2, 4], .home, .low)
         ]
         let cal = Calendar.current
         let today = cal.startOfDay(for: Date())
         for (index, demo) in demos.enumerated() {
             let habit = Habit(name: demo.name, icon: demo.icon, sortIndex: index)
+            habit.category = demo.cat
+            habit.priority = demo.prio
             context.insert(habit)
             for offset in demo.offsets {
                 if let day = cal.date(byAdding: .day, value: -offset, to: today) {
                     context.insert(DailyRecord(date: day, status: .completed, habit: habit))
                 }
             }
+        }
+        // Un examen de démo (pour la bannière + Exam Mode).
+        if let examDate = cal.date(byAdding: .day, value: 5, to: today) {
+            context.insert(Exam(title: "Partiel de Maths", date: examDate, icon: "function"))
+        }
+        if let examDate2 = cal.date(byAdding: .day, value: 18, to: today) {
+            context.insert(Exam(title: "Oral d'anglais", date: examDate2, icon: "globe.europe.africa.fill"))
         }
         try? context.save()
     }

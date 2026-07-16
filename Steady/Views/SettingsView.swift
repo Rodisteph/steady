@@ -28,7 +28,7 @@ struct SettingsView: View {
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showPremiumSheet) {
-                PremiumView(storeManager: store.storeManager)
+                PremiumView(storeManager: store.storeManager, context: .theme)
             }
         }
     }
@@ -96,9 +96,9 @@ struct SettingsView: View {
                     set: { notif.isEnabled = $0 }
                 )) {
                     Label {
-                        Text("Activer les rappels")
+                        Text("Activer les rappels").foregroundStyle(.primary)
                     } icon: {
-                        rowIcon("bell.fill")
+                        rowIcon("bell.fill", tint: .orange)
                     }
                 }
                 .tint(Color.accentDeep)
@@ -109,7 +109,7 @@ struct SettingsView: View {
                         get: { notif.dailyReminderEnabled },
                         set: { notif.dailyReminderEnabled = $0 }
                     )) {
-                        Label { Text("Rappel quotidien") } icon: { rowIcon("sun.max.fill") }
+                        Label { Text("Rappel quotidien").foregroundStyle(.primary) } icon: { rowIcon("sun.max.fill", tint: Color.steadyFlame) }
                     }
                     .tint(Color.accentDeep)
 
@@ -124,7 +124,7 @@ struct SettingsView: View {
                             ),
                             displayedComponents: .hourAndMinute
                         ) {
-                            Label { Text("Heure") } icon: { rowIcon("clock.fill") }
+                            Label { Text("Heure").foregroundStyle(.primary) } icon: { rowIcon("clock.fill", tint: .indigo) }
                         }
                     }
 
@@ -202,7 +202,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 0) {
             sectionHeader("Langue")
             HStack {
-                Label { Text("Langue") } icon: { rowIcon("globe") }
+                Label { Text("Langue").foregroundStyle(.primary) } icon: { rowIcon("globe", tint: .blue) }
                 Spacer()
                 Picker("", selection: Binding(
                     get: { LocalizationManager.shared.language },
@@ -227,23 +227,23 @@ struct SettingsView: View {
             sectionHeader("Application")
             VStack(spacing: Theme.Spacing.md) {
                 HStack {
-                    Label { Text("Version") } icon: { rowIcon("info.circle.fill") }
+                    Label { Text("Version").foregroundStyle(.primary) } icon: { rowIcon("info.circle.fill", tint: .gray) }
                     Spacer()
                     Text(appVersion).foregroundStyle(.secondary)
                 }
                 Divider()
                 Link(destination: AppLinks.privacyPolicy) {
-                    settingsLinkRow("Politique de confidentialité", icon: "hand.raised.fill")
+                    settingsLinkRow("Politique de confidentialité", icon: "hand.raised.fill", tint: .blue)
                 }
                 Divider()
                 Link(destination: AppLinks.termsOfUse) {
-                    settingsLinkRow("Conditions d'utilisation", icon: "doc.text.fill")
+                    settingsLinkRow("Conditions d'utilisation", icon: "doc.text.fill", tint: .brown)
                 }
                 Divider()
                 Button {
                     Task { await store.storeManager.restorePurchases() }
                 } label: {
-                    settingsLinkRow("Restaurer les achats", icon: "arrow.counterclockwise")
+                    settingsLinkRow("Restaurer les achats", icon: "arrow.counterclockwise", tint: .teal)
                 }
             }
             .padding(Theme.Spacing.lg)
@@ -251,12 +251,14 @@ struct SettingsView: View {
         }
     }
 
-    private func settingsLinkRow(_ title: LocalizedStringKey, icon: String) -> some View {
+    private func settingsLinkRow(_ title: LocalizedStringKey, icon: String, tint: Color = .accentDeep) -> some View {
         HStack {
-            Label { Text(title).foregroundStyle(.primary) } icon: { rowIcon(icon) }
+            Label { Text(title) } icon: { rowIcon(icon, tint: tint) }
             Spacer()
             Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
         }
+        // Force le texte en couleur principale : sans ça, Link/Button teintent tout en vert.
+        .foregroundStyle(.primary)
     }
 
     // MARK: - Briques
@@ -271,12 +273,14 @@ struct SettingsView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func rowIcon(_ name: String) -> some View {
+    /// Icône de ligne façon Réglages iOS : pastille colorée + pictogramme blanc.
+    /// Chaque ligne a sa couleur, le texte reste toujours en couleur principale.
+    private func rowIcon(_ name: String, tint: Color = .accentDeep) -> some View {
         Image(systemName: name)
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(Color.accentDeep)
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.white)
             .frame(width: 30, height: 30)
-            .background(Circle().fill(Color.brandAccent.opacity(0.15)))
+            .background(RoundedRectangle(cornerRadius: 8).fill(tint))
     }
 
     private var appVersion: String {

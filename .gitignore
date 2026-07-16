@@ -15,3 +15,6 @@ Steady/GoogleService-Info.plist
 
 # Documents hors code
 *.pdf
+
+# Cloud Functions : dépendances jamais versionnées
+functions/node_modules/

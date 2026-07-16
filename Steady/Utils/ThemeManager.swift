@@ -65,7 +65,8 @@ final class ThemeManager {
             }
         }
 
-        private var gradientColors: [Color] {
+        /// Couleurs brutes du dégradé (aussi utilisées pour teinter le widget).
+        var gradientColors: [Color] {
             switch self {
             case .sage:
                 return [Color(red: 0.62, green: 0.72, blue: 0.67), Color(red: 0.47, green: 0.60, blue: 0.54)]

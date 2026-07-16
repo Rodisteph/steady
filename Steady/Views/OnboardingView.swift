@@ -25,7 +25,7 @@ struct OnboardingView: View {
               text: "Des jours off sans casser ta série, un rythme qui te respecte. Ici, on avance en douceur."),
         .init(icon: "sparkles",
               title: "Un coach rien que pour toi",
-              text: "Conseils personnalisés calculés sur ton appareil — 100 % privé.")
+              text: "Des conseils sur mesure, calculés sur ton téléphone. Tes données restent privées.")
     ]
 
     var body: some View {
@@ -39,6 +39,9 @@ struct OnboardingView: View {
                     .transition(.opacity)
             }
         }
+        // Plafonne la taille de police système sur ces écrans plein cadre :
+        // au-delà, les textes débordaient. L'app elle-même reste 100 % adaptative.
+        .dynamicTypeSize(...DynamicTypeSize.xLarge)
     }
 
     // MARK: - Intro (8 pages)
@@ -106,12 +109,15 @@ struct OnboardingView: View {
         VStack(spacing: Theme.Spacing.lg) {
             VStack(spacing: Theme.Spacing.sm) {
                 Text("Par quoi veux-tu commencer ?")
-                    .font(.system(.largeTitle, design: .rounded).weight(.bold))
+                    .font(.system(.title, design: .rounded).weight(.bold))
                     .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.7)
                 Text("On te prépare 3 habitudes pour démarrer en douceur.")
-                    .font(.title3)
+                    .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.top, Theme.Spacing.xl)
             .padding(.horizontal, Theme.Spacing.lg)
@@ -162,14 +168,18 @@ private struct OnboardingPageView: View {
             hero
             VStack(spacing: Theme.Spacing.sm) {
                 Text(title)
-                    .font(.system(.largeTitle, design: .rounded).weight(.bold))
+                    .font(.system(.title, design: .rounded).weight(.bold))
                     .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.7)   // « Un coach rien que pour toi » tient sur petit écran
                 Text(text)
-                    .font(.title3)
+                    .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(3)
+                    .fixedSize(horizontal: false, vertical: true)
             }
+            .frame(maxWidth: .infinity)
             .padding(.horizontal, Theme.Spacing.xl)
             .opacity(appear ? 1 : 0)
             .offset(y: appear ? 0 : 18)
