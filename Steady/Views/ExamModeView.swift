@@ -516,7 +516,7 @@ private struct FocusSessionSheet: View {
         if endDate != nil {
             Button {
                 withAnimation { endDate = nil }
-                FocusActivityController.endAll()
+                Task { await FocusActivityController.endAll() }
                 clearSaved()
             } label: {
                 Text("Arrêter")
@@ -541,7 +541,7 @@ private struct FocusSessionSheet: View {
                 withAnimation { endDate = end }
                 // Minuteur sur l'écran verrouillé + Dynamic Island : la session
                 // continue même si l'utilisateur quitte l'app pour réviser.
-                FocusActivityController.start(examTitle: exam.title, startDate: start, endDate: end)
+                Task { await FocusActivityController.start(examTitle: exam.title, startDate: start, endDate: end) }
                 saveSession(start: start, end: end)
                 HapticManager.success()
             } label: {
@@ -562,7 +562,7 @@ private struct FocusSessionSheet: View {
     private func complete() {
         finished = true
         endDate = nil
-        FocusActivityController.endAll()
+        Task { await FocusActivityController.endAll() }
         clearSaved()
         HapticManager.success()
         // Valide l'habitude de révision liée, si présente.
