@@ -12,5 +12,6 @@ import SwiftUI
 struct SteadywidgetBundle: WidgetBundle {
     var body: some Widget {
         Steadywidget()
+        FocusLiveActivity()   // minuteur de révision : écran verrouillé + Dynamic Island
     }
 }

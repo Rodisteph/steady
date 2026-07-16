@@ -10,6 +10,8 @@
 	<false/>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Steady lit certaines données de Santé (pas, distance, eau, méditation, minutes d'exercice) pour valider automatiquement les habitudes que tu y relies. Ces données restent sur ton appareil.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>Steady utilise cet identifiant pour t'afficher des publicités plus pertinentes. Tu peux refuser : l'app fonctionne exactement pareil, avec des publicités moins ciblées.</string>
 	<key>SKAdNetworkItems</key>

@@ -347,6 +347,13 @@ private struct FocusSessionSheet: View {
     @State private var totalSeconds: TimeInterval = 25 * 60   // durée de la session en cours (pour l'anneau)
     @State private var finished = false
 
+    // Session persistée : on peut quitter l'app (c'est même le but du minuteur
+    // sur l'écran verrouillé) et retrouver le décompte en revenant, au lieu
+    // d'un timer remis à zéro pendant que la Live Activity tourne encore.
+    @AppStorage("steady_focus_examID") private var savedExamID = ""
+    @AppStorage("steady_focus_start") private var savedStart: Double = 0
+    @AppStorage("steady_focus_end") private var savedEnd: Double = 0
+
     var body: some View {
         ZStack {
             // Fond premium plein écran (bord à bord).
@@ -372,7 +379,27 @@ private struct FocusSessionSheet: View {
         }
         .presentationBackground(.clear)
         .presentationDetents([.large])
-        .interactiveDismissDisabled(endDate != nil)   // pas de fermeture accidentelle en pleine session
+        .task { restoreSessionIfNeeded() }
+    }
+
+    /// Restaure une session encore en cours (retour dans l'app pendant le décompte).
+    private func restoreSessionIfNeeded() {
+        guard savedExamID == exam.id.uuidString else { return }
+        let end = Date(timeIntervalSince1970: savedEnd)
+        guard end > Date() else { clearSaved(); return }
+        totalSeconds = savedEnd - savedStart
+        minutes = max(1, Int(totalSeconds / 60))
+        endDate = end
+    }
+
+    private func saveSession(start: Date, end: Date) {
+        savedExamID = exam.id.uuidString
+        savedStart = start.timeIntervalSince1970
+        savedEnd = end.timeIntervalSince1970
+    }
+
+    private func clearSaved() {
+        savedExamID = ""; savedStart = 0; savedEnd = 0
     }
 
     // MARK: - Barre du haut
@@ -487,7 +514,11 @@ private struct FocusSessionSheet: View {
 
     @ViewBuilder private var footer: some View {
         if endDate != nil {
-            Button { withAnimation { endDate = nil } } label: {
+            Button {
+                withAnimation { endDate = nil }
+                FocusActivityController.endAll()
+                clearSaved()
+            } label: {
                 Text("Arrêter")
                     .font(.headline).foregroundStyle(.white)
                     .frame(maxWidth: .infinity).padding(.vertical, 16)
@@ -505,7 +536,13 @@ private struct FocusSessionSheet: View {
         } else {
             Button {
                 totalSeconds = TimeInterval(minutes * 60)
-                withAnimation { endDate = Date().addingTimeInterval(totalSeconds) }
+                let start = Date()
+                let end = start.addingTimeInterval(totalSeconds)
+                withAnimation { endDate = end }
+                // Minuteur sur l'écran verrouillé + Dynamic Island : la session
+                // continue même si l'utilisateur quitte l'app pour réviser.
+                FocusActivityController.start(examTitle: exam.title, startDate: start, endDate: end)
+                saveSession(start: start, end: end)
                 HapticManager.success()
             } label: {
                 Label("Démarrer", systemImage: "play.fill")
@@ -525,6 +562,8 @@ private struct FocusSessionSheet: View {
     private func complete() {
         finished = true
         endDate = nil
+        FocusActivityController.endAll()
+        clearSaved()
         HapticManager.success()
         // Valide l'habitude de révision liée, si présente.
         if let id = exam.focusHabitID,
