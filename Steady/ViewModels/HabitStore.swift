@@ -429,6 +429,14 @@ final class HabitStore {
         try? context?.save()
     }
 
+    /// Change uniquement la catégorie (glisser une habitude sur une bulle).
+    func setCategory(_ category: HabitCategory, for habit: Habit) {
+        guard habit.category != category else { return }
+        habit.category = category
+        try? context?.save()
+        HapticManager.success()
+    }
+
     /// Règle l'objectif quotidien (1 = simple) et l'unité d'une habitude.
     func setGoal(for habit: Habit, goal: Int, unit: String) {
         habit.dailyGoal = max(1, goal)

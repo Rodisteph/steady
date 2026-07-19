@@ -139,9 +139,14 @@ struct MainView: View {
                     examBanner(exam).plainRow()
                 }
 
-                // Vue d'ensemble par catégories : bulles proportionnelles, tap = filtre.
-                CategoryBubblesView(habits: todaysHabits, selected: $categoryFilter)
-                    .plainRow()
+                // Vue d'ensemble par catégories : bulles manipulables (tap = filtre,
+                // appui long = déplacer, pincer = agrandir, déposer une habitude = ranger).
+                CategoryBubblesView(habits: todaysHabits, selected: $categoryFilter) { id, category in
+                    if let habit = try? store.habit(with: id) {
+                        withAnimation { store.setCategory(category, for: habit) }
+                    }
+                }
+                .plainRow()
 
                 // Sélecteur de tri : par importance (à plat) ou par catégorie (sections).
                 // Masqué s'il n'y a qu'une catégorie ou un filtre actif (rien à regrouper).
@@ -441,6 +446,12 @@ struct MainView: View {
         })
         .matchedTransitionSource(id: habit.id, in: detailZoom)
         .appearStagger(index, enabled: !staggerDone)
+        // Glisser une habitude vers une bulle de catégorie pour la ranger.
+        .draggable(habit.id.uuidString) {
+            Label(habit.name, systemImage: habit.icon)
+                .padding(8)
+                .background(Capsule().fill(Color.steadyCard))
+        }
         .plainRow()
         .swipeActions(edge: .leading) {
             Button {
