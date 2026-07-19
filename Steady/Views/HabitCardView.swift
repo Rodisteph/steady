@@ -172,11 +172,9 @@ struct HabitCardView: View {
     // MARK: - Action
 
     private func toggle() {
-        // Retour haptique sur l'action la plus fréquente de l'app : « succès »
-        // satisfaisant à la validation, tap léger à l'annulation.
-        let willComplete = !isCompleted
-        if willComplete { HapticManager.success() } else { HapticManager.lightImpact() }
-
+        // Le retour haptique est géré dans store.toggleHabit (succès à la
+        // validation, tap léger à l'annulation) — centralisé pour couvrir aussi
+        // le widget, et éviter un double buzz.
         // Jour de repos : rien n'est exigé, mais valider reste permis (et ça compte).
         withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
             store.toggleHabit(habit, on: Date())

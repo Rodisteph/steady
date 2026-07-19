@@ -57,6 +57,10 @@ struct MainView: View {
     @State private var didSetup = false
     @Namespace private var detailZoom
 
+    // Récompense : petit « +10 XP · +5 🪙 » flottant à la validation.
+    private var game = GamificationManager.shared
+    @State private var rewardGain: GamificationManager.RewardGain?
+
     private var isPremium: Bool { store.storeManager.isPremium }
 
     /// En gratuit, seules les 3 premières habitudes (dans l'ordre) restent actives.
@@ -273,6 +277,23 @@ struct MainView: View {
                 }
             }
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: toast)
+            // Gain de récompense flottant (haut de l'écran).
+            .overlay(alignment: .top) {
+                if let gain = rewardGain {
+                    rewardBadge(gain)
+                        .padding(.top, 4)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .task(id: gain.id) {
+                            try? await Task.sleep(for: .seconds(1.6))
+                            withAnimation(.spring) { rewardGain = nil }
+                        }
+                }
+            }
+            .animation(.spring(response: 0.45, dampingFraction: 0.7), value: rewardGain)
+            .onChange(of: game.lastReward) { _, new in
+                guard let new else { return }
+                rewardGain = new
+            }
             .confirmationDialog(
                 Text("Supprimer « \(habitToDelete?.name ?? "") » ?"),
                 isPresented: Binding(
@@ -438,6 +459,27 @@ struct MainView: View {
 
     /// Une carte d'habitude avec ses actions de balayage (partagée par les deux modes).
     @ViewBuilder
+    /// Badge « +10 XP · +5 🪙 » (ou « Niveau supérieur ! ») affiché à la validation.
+    private func rewardBadge(_ gain: GamificationManager.RewardGain) -> some View {
+        HStack(spacing: 8) {
+            if gain.leveledUp {
+                Image(systemName: "arrow.up.circle.fill")
+                Text("Niveau supérieur !").font(.subheadline.weight(.bold))
+            } else {
+                Text("+\(gain.xp) XP").font(.subheadline.weight(.bold))
+                Text("·").opacity(0.6)
+                HStack(spacing: 3) {
+                    Text("+\(gain.coins)").font(.subheadline.weight(.bold))
+                    Image(systemName: "star.circle.fill").font(.caption)
+                }
+            }
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 16).padding(.vertical, 9)
+        .background(Capsule().fill(gain.leveledUp ? AnyShapeStyle(Color.accentGradient) : AnyShapeStyle(Color.accentDeep)))
+        .shadow(color: Color.brandAccent.opacity(0.35), radius: 10, y: 4)
+    }
+
     private func habitRow(_ habit: Habit, index: Int) -> some View {
         HabitCardView(habit: habit, store: store, onShowDetail: {
             detailHabit = habit

@@ -12989,6 +12989,28 @@
         }
       }
     },
+    "Niveau supérieur !": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Level up!"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¡Subes de nivel!"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subiste de nível!"
+          }
+        }
+      }
+    },
     "Niveaux, badges et défis transforment ta régularité en jeu.": {
       "extractionState": "stale",
       "localizations": {
@@ -14869,6 +14891,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Faltam %lld dias"
+          }
+        }
+      }
+    },
+    "Plus que %lld pièces pour un nouvel avatar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld more coins for a new avatar"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld monedas más para un avatar nuevo"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faltam %lld moedas para um novo avatar"
           }
         }
       }
@@ -21014,6 +21058,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Podes bloquear alguém a partir de uma mensagem, premindo-a longamente."
+          }
+        }
+      }
+    },
+    "Tu peux débloquer un nouvel avatar !": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can unlock a new avatar!"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¡Puedes desbloquear un avatar nuevo!"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podes desbloquear um novo avatar!"
           }
         }
       }

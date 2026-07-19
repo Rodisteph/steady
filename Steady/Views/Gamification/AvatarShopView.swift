@@ -73,20 +73,46 @@ struct AvatarShopView: View {
         }
     }
 
+    /// Objectif de dépense : l'avatar accessible le plus proche que l'on ne
+    /// possède pas encore. Donne un but concret à la collecte de pièces.
+    private var spendingGoal: (item: AvatarItem, missing: Int)? {
+        let candidates = AvatarShop.all
+            .filter { !game.isUnlocked($0.symbol) && (!$0.premiumOnly || isPremium) }
+            .sorted { $0.cost < $1.cost }
+        // Le premier qu'on ne peut pas encore s'offrir (sinon on peut déjà acheter).
+        if let next = candidates.first(where: { $0.cost > game.coins }) {
+            return (next, next.cost - game.coins)
+        }
+        return nil
+    }
+
     private var balanceCard: some View {
-        HStack(spacing: Theme.Spacing.md) {
-            Image(systemName: "star.circle.fill")
-                .font(.title)
-                .foregroundStyle(Color.steadyFlame)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("\(game.coins)")
-                    .font(.title2.weight(.bold))
-                    .contentTransition(.numericText())
-                Text("pièces disponibles")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.md) {
+                Image(systemName: "star.circle.fill")
+                    .font(.title)
+                    .foregroundStyle(Color.steadyFlame)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(game.coins)")
+                        .font(.title2.weight(.bold))
+                        .contentTransition(.numericText())
+                    Text("pièces disponibles")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
             }
-            Spacer()
+            if let goal = spendingGoal {
+                let target = Double(goal.item.cost)
+                ProgressView(value: min(Double(game.coins), target), total: target)
+                    .tint(Color.accentDeep)
+                Label(L("Plus que \(goal.missing) pièces pour un nouvel avatar"),
+                      systemImage: goal.item.symbol)
+                    .font(.caption2).foregroundStyle(.secondary)
+            } else if game.coins > 0 {
+                Label("Tu peux débloquer un nouvel avatar !", systemImage: "sparkles")
+                    .font(.caption2.weight(.semibold)).foregroundStyle(Color.accentDeep)
+            }
         }
         .padding(Theme.Spacing.lg)
         .frame(maxWidth: .infinity, alignment: .leading)

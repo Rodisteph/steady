@@ -135,12 +135,15 @@ final class HabitStore {
         }
 
         try? context.save()
-        HapticManager.lightImpact()
 
         // Gamification : récompense quand l'habitude vient d'être complétée
         // (une seule fois par habitude et par jour — pas de farm en cochant/décochant).
-        if !wasCompleted && isCompleted(habit, on: date) {
+        let justCompleted = !wasCompleted && isCompleted(habit, on: date)
+        if justCompleted {
+            HapticManager.success()   // haptique « succès » satisfaisant à la validation
             GamificationManager.shared.awardCompletion(streak: currentStreak(for: habit), key: rewardKey(habit, date), multiplier: storeManager.isPremium ? 2 : 1)
+        } else {
+            HapticManager.lightImpact()
         }
 
         refreshNotifications()   // met aussi le widget à jour

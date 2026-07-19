@@ -31,6 +31,12 @@ final class GamificationManager {
         didSet { UserDefaults.standard.set(Array(rewardedKeys), forKey: "steady_rewarded_keys") }
     }
 
+    /// Dernier gain (XP + pièces) : sert au petit « +10 XP · +5 🪙 » flottant.
+    /// `id` change à chaque gain pour redéclencher l'animation même si les
+    /// montants sont identiques.
+    struct RewardGain: Equatable { let id = UUID(); let xp: Int; let coins: Int; let leveledUp: Bool }
+    private(set) var lastReward: RewardGain?
+
     private init() {
         xp = UserDefaults.standard.integer(forKey: "steady_xp")
         coins = UserDefaults.standard.integer(forKey: "steady_coins")
@@ -94,9 +100,13 @@ final class GamificationManager {
         rewardedKeys.insert(key)
         let before = level
         let m = max(1, multiplier)
-        xp += (10 + min(max(streak, 0), 10)) * m   // bonus jusqu'à +10 selon la série
-        coins += 5 * m
-        return level > before
+        let xpGain = (10 + min(max(streak, 0), 10)) * m   // bonus jusqu'à +10 selon la série
+        let coinGain = 5 * m
+        xp += xpGain
+        coins += coinGain
+        let leveled = level > before
+        lastReward = RewardGain(xp: xpGain, coins: coinGain, leveledUp: leveled)
+        return leveled
     }
 
     /// Récompense ponctuelle protégée par une clé (ex. défi réussi) : versée une seule fois.
