@@ -57,6 +57,8 @@ struct SocialGroup: Identifiable, Hashable {
     var memberIDs: [String] = []
     /// Date du dernier message (pour la pastille « non lu »).
     var lastMessageAt: Date? = nil
+    /// Auteur du dernier message : si c'est moi, pas de pastille « non lu ».
+    var lastMessageAuthorUID: String? = nil
 }
 
 /// Message de chat de groupe.

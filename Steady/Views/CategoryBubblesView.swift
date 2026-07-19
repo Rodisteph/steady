@@ -41,7 +41,9 @@ struct CategoryBubblesView: View {
         .sorted { $0.weight > $1.weight }
     }
 
-    private func baseDiameter(_ weight: Int) -> CGFloat { min(108, 56 + CGFloat(weight - 1) * 12) }
+    /// Plage volontairement large pour un vrai contraste visuel : une catégorie
+    /// à 1 habitude est nettement petite, une grosse catégorie très visible.
+    private func baseDiameter(_ weight: Int) -> CGFloat { min(140, 46 + CGFloat(weight - 1) * 17) }
 
     private func scale(for c: HabitCategory) -> CGFloat { CGFloat(layout[c.rawValue]?.scale ?? 1) }
 
@@ -97,6 +99,8 @@ struct CategoryBubblesView: View {
                     ForEach(weights, id: \.category) { entry in
                         bubble(entry)
                             .position(center(entry.category, base: base, canvas: canvas))
+                            // La bulle déplacée passe au-dessus des autres.
+                            .zIndex(drag?.category == entry.category ? 1 : 0)
                     }
                 }
                 .frame(width: canvas.width, height: canvas.height, alignment: .topLeading)
@@ -170,8 +174,9 @@ struct CategoryBubblesView: View {
                 selected = isSelected ? nil : c
             }
         }
-        // Appui long puis glisser = déplacer.
-        .gesture(moveGesture(c))
+        // Appui long puis glisser = déplacer. En priorité haute pour gagner
+        // contre le défilement de la liste dès que le doigt bouge.
+        .highPriorityGesture(moveGesture(c))
         // Pincer = agrandir / réduire.
         .simultaneousGesture(pinchGesture(c))
         // Déposer une habitude dessus = la catégoriser.
@@ -187,8 +192,8 @@ struct CategoryBubblesView: View {
     }
 
     private func scaleEffect(for c: HabitCategory, selected: Bool, dropTarget: Bool) -> CGFloat {
+        if drag?.category == c { return 1.18 }   // « soulèvement » pendant le déplacement
         if dropTarget { return 1.15 }
-        if drag?.category == c { return 1.1 }
         if self.selected == nil || selected { return 1 }
         return 0.85
     }
@@ -196,15 +201,23 @@ struct CategoryBubblesView: View {
     // MARK: - Gestes
 
     private func moveGesture(_ c: HabitCategory) -> some Gesture {
-        LongPressGesture(minimumDuration: 0.28)
-            .sequenced(before: DragGesture())
+        // Appui long court (0,15 s) : assez pour distinguer d'un tap, assez bref
+        // pour que ça réponde tout de suite. Un léger retour haptique au moment
+        // où la bulle est « saisie ».
+        LongPressGesture(minimumDuration: 0.15)
+            .sequenced(before: DragGesture(minimumDistance: 0))
             .updating($drag) { value, state, _ in
                 switch value {
-                case .second(true, let d?):
-                    state = (c, d.translation)
+                case .first(true):
+                    state = (c, .zero)          // saisie : la bulle se soulève
+                case .second(true, let d):
+                    state = (c, d?.translation ?? .zero)
                 default:
                     break
                 }
+            }
+            .onChanged { value in
+                if case .first(true) = value { HapticManager.lightImpact() }
             }
             .onEnded { value in
                 guard case .second(true, let d?) = value else { return }
@@ -221,7 +234,7 @@ struct CategoryBubblesView: View {
         MagnifyGesture()
             .onEnded { value in
                 var l = layout[c.rawValue] ?? BubbleLayout()
-                l.scale = min(1.8, max(0.6, l.scale * value.magnification))
+                l.scale = min(2.2, max(0.5, l.scale * value.magnification))   // plage large
                 layout[c.rawValue] = l
                 saveLayout()
                 HapticManager.lightImpact()

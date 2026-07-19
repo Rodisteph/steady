@@ -260,7 +260,8 @@ final class FirebaseSocialService: SocialService {
                 icon: d["icon"] as? String ?? "person.3.fill",
                 memberCount: memberIDs.count,
                 memberIDs: memberIDs,
-                lastMessageAt: (d["lastMessageAt"] as? Timestamp)?.dateValue()
+                lastMessageAt: (d["lastMessageAt"] as? Timestamp)?.dateValue(),
+                lastMessageAuthorUID: d["lastMessageAuthorUID"] as? String
             )
         }
     }
@@ -339,9 +340,11 @@ final class FirebaseSocialService: SocialService {
                 "text": clean,
                 "createdAt": FieldValue.serverTimestamp()
             ])
-        // Horodatage du dernier message → pastille « non lu » chez les autres membres.
+        // Horodatage + auteur du dernier message → pastille « non lu » chez les
+        // AUTRES membres, mais pas chez moi (je viens de l'écrire).
         try? await db.collection("groups").document(group.id)
-            .setData(["lastMessageAt": FieldValue.serverTimestamp()], merge: true)
+            .setData(["lastMessageAt": FieldValue.serverTimestamp(),
+                      "lastMessageAuthorUID": uid], merge: true)
     }
 
     // MARK: - Groupe d'accueil

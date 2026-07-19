@@ -154,6 +154,8 @@ final class SocialStore {
     func hasUnread(_ g: SocialGroup) -> Bool {
         _ = readMarker   // dépendance @Observable : la pastille se met à jour
         guard let last = g.lastMessageAt else { return false }
+        // Si le dernier message est le mien, jamais de pastille.
+        if let author = g.lastMessageAuthorUID, author == AuthManager.shared.uid { return false }
         let read = UserDefaults.standard.object(forKey: "steady_group_read_\(g.id)") as? Date ?? .distantPast
         return last > read
     }

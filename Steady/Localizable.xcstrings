@@ -1300,6 +1300,50 @@
         }
       }
     },
+    "10 min de soleil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 min of sun"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 min de sol"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 min de sol"
+          }
+        }
+      }
+    },
+    "10 min de soleil · 30 jours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 min of sun · 30 days"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 min de sol · 30 días"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 min de sol · 30 dias"
+          }
+        }
+      }
+    },
     "10 minutes de rangement chaque jour, 30 jours.": {
       "localizations": {
         "en": {
@@ -1413,6 +1457,28 @@
         }
       }
     },
+    "1000 minutes de sport ce mois": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1000 minutes of exercise this month"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1000 minutos de ejercicio este mes"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1000 minutos de exercício este mês"
+          }
+        }
+      }
+    },
     "1000 pompes ce mois": {
       "localizations": {
         "en": {
@@ -1435,6 +1501,28 @@
         }
       }
     },
+    "1000 squats ce mois": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1000 squats this month"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1000 sentadillas este mes"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1000 agachamentos este mês"
+          }
+        }
+      }
+    },
     "10–15 min": {
       "localizations": {
         "en": {
@@ -1453,6 +1541,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "10–15 min"
+          }
+        }
+      }
+    },
+    "14 jours sans scroller les réseaux sociaux.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 days without scrolling social media."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 días sin desplazarte por las redes."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 dias sem rolar as redes sociais."
           }
         }
       }
@@ -1541,6 +1651,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "20 min"
+          }
+        }
+      }
+    },
+    "200 km à vélo ce mois": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "200 km cycling this month"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "200 km en bici este mes"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "200 km de bicicleta este mês"
           }
         }
       }
@@ -1743,6 +1875,28 @@
         }
       }
     },
+    "30 mots · 30 jours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 words · 30 days"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 palabras · 30 días"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 palavras · 30 dias"
+          }
+        }
+      }
+    },
     "300 000 pas ce mois": {
       "localizations": {
         "en": {
@@ -1871,6 +2025,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "50 km este mês"
+          }
+        }
+      }
+    },
+    "500 000 pas ce mois": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "500,000 steps this month"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "500 000 pasos este mes"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "500 000 passos este mês"
           }
         }
       }
@@ -2159,6 +2335,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Abandonar o desafio"
+          }
+        }
+      }
+    },
+    "Abdos · 30 jours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abs · 30 days"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abdominales · 30 días"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abdominais · 30 dias"
           }
         }
       }
@@ -3007,6 +3205,28 @@
         }
       }
     },
+    "Appeler un proche": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Call a loved one"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Llamar a alguien"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligar a alguém"
+          }
+        }
+      }
+    },
     "Apple Santé": {
       "localizations": {
         "en": {
@@ -3113,6 +3333,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aprender um idioma"
+          }
+        }
+      }
+    },
+    "Apprends un mot nouveau chaque jour.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learn a new word every day."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprende una palabra nueva cada día."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprende uma palavra nova todos os dias."
           }
         }
       }
@@ -4840,6 +5082,28 @@
         }
       }
     },
+    "Chaque jour, un vrai bloc de travail sans distraction.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every day, one real block of focused work."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cada día, un bloque real de trabajo sin distracciones."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos os dias, um bloco real de trabalho sem distrações."
+          }
+        }
+      }
+    },
     "Chaque petit pas compte. Prends un instant pour toi.": {
       "localizations": {
         "en": {
@@ -5386,6 +5650,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Contagem regressiva e sessões de foco que validam a tua revisão"
+          }
+        }
+      }
+    },
+    "Concentration profonde · 21 jours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deep focus · 21 days"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concentración profunda · 21 días"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concentração profunda · 21 dias"
           }
         }
       }
@@ -6142,6 +6428,28 @@
         }
       }
     },
+    "Cuisiner maison": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cook at home"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cocinar en casa"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cozinhar em casa"
+          }
+        }
+      }
+    },
     "Cumule 100 km de course dans le mois. Suivi via Apple Santé.": {
       "localizations": {
         "en": {
@@ -6253,6 +6561,28 @@
         }
       }
     },
+    "Cumule 1000 minutes d'exercice, suivi via Apple Santé.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rack up 1000 minutes of exercise, via Apple Health."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acumula 1000 minutos de ejercicio, con Apple Salud."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acumula 1000 minutos de exercício, via Apple Saúde."
+          }
+        }
+      }
+    },
     "Cumule 1000 pompes à ton rythme dans le mois.": {
       "localizations": {
         "en": {
@@ -6271,6 +6601,50 @@
           "stringUnit": {
             "state": "translated",
             "value": "Acumule 1000 flexões no seu ritmo este mês."
+          }
+        }
+      }
+    },
+    "Cumule 1000 squats avant la fin du mois.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rack up 1000 squats before month's end."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acumula 1000 sentadillas antes de fin de mes."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acumula 1000 agachamentos antes do fim do mês."
+          }
+        }
+      }
+    },
+    "Cumule 200 km à vélo avant la fin du mois.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ride 200 km before month's end."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acumula 200 km en bici antes de fin de mes."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acumula 200 km de bicicleta antes do fim do mês."
           }
         }
       }
@@ -6698,6 +7072,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Distância (corrida/caminhada)"
+          }
+        }
+      }
+    },
+    "Dix minutes de lumière du jour chaque matin.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten minutes of daylight every morning."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diez minutos de luz natural cada mañana."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dez minutos de luz do dia todas as manhãs."
           }
         }
       }
@@ -8104,6 +8500,50 @@
         }
       }
     },
+    "Faire mon lit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make my bed"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hacer la cama"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fazer a cama"
+          }
+        }
+      }
+    },
+    "Faire une pause écran": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a screen break"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausa de pantalla"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausa do ecrã"
+          }
+        }
+      }
+    },
     "Fais avancer ton projet perso, chaque jour.": {
       "localizations": {
         "en": {
@@ -8166,6 +8606,50 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fechar"
+          }
+        }
+      }
+    },
+    "Fil dentaire": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Floss"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hilo dental"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fio dental"
+          }
+        }
+      }
+    },
+    "Fil dentaire · 30 jours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flossing · 30 days"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hilo dental · 30 días"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fio dental · 30 dias"
           }
         }
       }
@@ -10178,6 +10662,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "O pacote completo: casa, papéis, refeições, roupa."
+          }
+        }
+      }
+    },
+    "Le petit geste santé qu'on oublie, 30 jours d'affilée.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The small health habit we forget, 30 days straight."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El pequeño hábito de salud que olvidamos, 30 días seguidos."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O pequeno hábito de saúde que esquecemos, 30 dias seguidos."
           }
         }
       }
@@ -14478,6 +14984,28 @@
         }
       }
     },
+    "Prendre l'air": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get fresh air"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tomar el aire"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apanhar ar"
+          }
+        }
+      }
+    },
     "Prendre mes vitamines": {
       "localizations": {
         "en": {
@@ -15934,6 +16462,28 @@
         }
       }
     },
+    "Respiration profonde": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deep breathing"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respiración profunda"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respiração profunda"
+          }
+        }
+      }
+    },
     "Respirer": {
       "localizations": {
         "en": {
@@ -16925,6 +17475,28 @@
         }
       }
     },
+    "Réviser 1h": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Study 1h"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estudiar 1h"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estudar 1h"
+          }
+        }
+      }
+    },
     "Révision focus": {
       "localizations": {
         "en": {
@@ -17105,6 +17677,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sem pressão"
+          }
+        }
+      }
+    },
+    "Sans réseaux sociaux · 14 jours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No social media · 14 days"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin redes sociales · 14 días"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem redes sociais · 14 dias"
           }
         }
       }
@@ -20584,6 +21178,28 @@
         }
       }
     },
+    "Un demi-million de pas, suivi via Apple Santé.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Half a million steps, tracked via Apple Health."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medio millón de pasos, con Apple Salud."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meio milhão de passos, via Apple Saúde."
+          }
+        }
+      }
+    },
     "Un intérieur propre sans y passer le dimanche.": {
       "localizations": {
         "en": {
@@ -21109,6 +21725,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Uma noite 100% desconectada"
+          }
+        }
+      }
+    },
+    "Une série d'abdos chaque jour pendant 30 jours.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One set of abs every day for 30 days."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una serie de abdominales cada día durante 30 días."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma série de abdominais todos os dias durante 30 dias."
           }
         }
       }
@@ -22875,6 +23513,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aquecimento"
+          }
+        }
+      }
+    },
+    "Économiser": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save money"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ahorrar"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poupar"
           }
         }
       }

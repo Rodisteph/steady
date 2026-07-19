@@ -30,7 +30,17 @@ struct AddHabitView: View {
         (L("Manger un fruit"), "fork.knife"),
         (L("Apprendre une langue"), "character.book.closed.fill"),
         (L("Ranger 10 min"), "house.fill"),
-        (L("Prendre mes vitamines"), "pills.fill")
+        (L("Prendre mes vitamines"), "pills.fill"),
+        (L("Réviser 1h"), "pencil.and.ruler.fill"),
+        (L("Faire mon lit"), "bed.double.fill"),
+        (L("10 min de soleil"), "sun.max.fill"),
+        (L("Fil dentaire"), "mouth.fill"),
+        (L("Prendre l'air"), "leaf.fill"),
+        (L("Cuisiner maison"), "frying.pan.fill"),
+        (L("Économiser"), "eurosign.circle.fill"),
+        (L("Appeler un proche"), "phone.fill"),
+        (L("Faire une pause écran"), "eye.fill"),
+        (L("Respiration profonde"), "wind")
     ]
 
     var body: some View {

@@ -204,7 +204,41 @@ enum ChallengeCatalog {
             ChallengeTemplate(id: "meditate100", name: L("100 minutes de méditation"),
                               summary: "Cumule 100 minutes de méditation. Suivi via Apple Santé.", icon: "brain.head.profile",
                               color: Color(red: 0.55, green: 0.45, blue: 0.80), target: 100, unit: L("min"), isDaily: false,
-                              healthMetric: .mindful)
+                              healthMetric: .mindful),
+
+            // --- Ajouts ---
+            ChallengeTemplate(id: "abs30", name: L("Abdos · 30 jours"),
+                              summary: "Une série d'abdos chaque jour pendant 30 jours.", icon: "figure.core.training",
+                              color: Color(red: 0.95, green: 0.62, blue: 0.30), target: 30, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "squats1000", name: L("1000 squats ce mois"),
+                              summary: "Cumule 1000 squats avant la fin du mois.", icon: "figure.strengthtraining.functional",
+                              color: Color(red: 0.90, green: 0.50, blue: 0.35), target: 1000, unit: L("squats"), isDaily: false),
+            ChallengeTemplate(id: "vocab30", name: L("30 mots · 30 jours"),
+                              summary: "Apprends un mot nouveau chaque jour.", icon: "character.book.closed.fill",
+                              color: Color(red: 0.45, green: 0.55, blue: 0.80), target: 30, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "nosocial14", name: L("Sans réseaux sociaux · 14 jours"),
+                              summary: "14 jours sans scroller les réseaux sociaux.", icon: "iphone.slash",
+                              color: Color(red: 0.40, green: 0.60, blue: 0.75), target: 14, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "floss30", name: L("Fil dentaire · 30 jours"),
+                              summary: "Le petit geste santé qu'on oublie, 30 jours d'affilée.", icon: "mouth.fill",
+                              color: Color(red: 0.85, green: 0.45, blue: 0.50), target: 30, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "sunlight30", name: L("10 min de soleil · 30 jours"),
+                              summary: "Dix minutes de lumière du jour chaque matin.", icon: "sun.max.fill",
+                              color: Color(red: 0.95, green: 0.70, blue: 0.30), target: 30, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "deepwork21", name: L("Concentration profonde · 21 jours"),
+                              summary: "Chaque jour, un vrai bloc de travail sans distraction.", icon: "brain.head.profile",
+                              color: Color(red: 0.40, green: 0.60, blue: 0.75), target: 21, unit: L("jours"), isDaily: true),
+            ChallengeTemplate(id: "bike200", name: L("200 km à vélo ce mois"),
+                              summary: "Cumule 200 km à vélo avant la fin du mois.", icon: "figure.outdoor.cycle",
+                              color: Color(red: 0.30, green: 0.65, blue: 0.55), target: 200, unit: L("km"), isDaily: false),
+            ChallengeTemplate(id: "steps500k", name: L("500 000 pas ce mois"),
+                              summary: "Un demi-million de pas, suivi via Apple Santé.", icon: "figure.walk",
+                              color: Color(red: 0.50, green: 0.70, blue: 0.45), target: 500000, unit: L("pas"), isDaily: false,
+                              healthMetric: .steps),
+            ChallengeTemplate(id: "exercise1000", name: L("1000 minutes de sport ce mois"),
+                              summary: "Cumule 1000 minutes d'exercice, suivi via Apple Santé.", icon: "figure.strengthtraining.traditional",
+                              color: Color(red: 0.90, green: 0.55, blue: 0.35), target: 1000, unit: L("min"), isDaily: false,
+                              healthMetric: .exercise)
         ]
     }
 

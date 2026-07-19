@@ -1132,6 +1132,7 @@ private struct GroupChatView: View {
     private func performSend(_ text: String) async {
         if let updated = await store.send(text, to: group) {
             messages = updated
+            store.markRead(group)   // mon propre message ne me marque pas « non lu »
         } else {
             // Refusé par le filtre : on rend le texte pour permettre la correction.
             draft = text
