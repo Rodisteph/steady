@@ -174,9 +174,9 @@ struct CategoryBubblesView: View {
                 selected = isSelected ? nil : c
             }
         }
-        // Appui long puis glisser = déplacer. En priorité haute pour gagner
-        // contre le défilement de la liste dès que le doigt bouge.
-        .highPriorityGesture(moveGesture(c))
+        // Glisser = déplacer. Gesture normal (pas highPriority) : sinon il
+        // « mange » le tap et le filtrage ne se déclenche plus.
+        .gesture(moveGesture(c))
         // Pincer = agrandir / réduire.
         .simultaneousGesture(pinchGesture(c))
         // Déposer une habitude dessus = la catégoriser.
@@ -201,29 +201,17 @@ struct CategoryBubblesView: View {
     // MARK: - Gestes
 
     private func moveGesture(_ c: HabitCategory) -> some Gesture {
-        // Appui long court (0,15 s) : assez pour distinguer d'un tap, assez bref
-        // pour que ça réponde tout de suite. Un léger retour haptique au moment
-        // où la bulle est « saisie ».
-        LongPressGesture(minimumDuration: 0.15)
-            .sequenced(before: DragGesture(minimumDistance: 0))
+        // Glissement direct, sans appui long : réactif tout de suite. Une distance
+        // minimale de 12 pt distingue un vrai glissement d'un simple tap — en
+        // dessous, rien ne bouge et c'est `onTapGesture` (le filtre) qui agit.
+        DragGesture(minimumDistance: 12)
             .updating($drag) { value, state, _ in
-                switch value {
-                case .first(true):
-                    state = (c, .zero)          // saisie : la bulle se soulève
-                case .second(true, let d):
-                    state = (c, d?.translation ?? .zero)
-                default:
-                    break
-                }
-            }
-            .onChanged { value in
-                if case .first(true) = value { HapticManager.lightImpact() }
+                state = (c, value.translation)
             }
             .onEnded { value in
-                guard case .second(true, let d?) = value else { return }
                 var l = layout[c.rawValue] ?? BubbleLayout()
-                l.dx += d.translation.width
-                l.dy += d.translation.height
+                l.dx += value.translation.width
+                l.dy += value.translation.height
                 layout[c.rawValue] = l
                 saveLayout()
                 HapticManager.lightImpact()
