@@ -5,27 +5,50 @@ import SwiftUI
 struct DailyInsightCard: View {
     let insight: CoachDailyInsight
     @State private var appear = false
+    /// Avis donné aujourd'hui (👍 / 👎) → fige les boutons et remercie.
+    @State private var feedback: Bool? = nil
+
+    private var memory: CoachMemory { CoachMemory.shared }
 
     var body: some View {
-        HStack(spacing: Theme.Spacing.md) {
-            ZStack {
-                Circle().fill(Color.accentGradient).frame(width: 50, height: 50)
-                    .shadow(color: Color.brandAccent.opacity(0.4), radius: 10, y: 5)
-                Image(systemName: insight.icon)
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .symbolEffect(.bounce, value: appear)
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.md) {
+                ZStack {
+                    Circle().fill(Color.accentGradient).frame(width: 50, height: 50)
+                        .shadow(color: Color.brandAccent.opacity(0.4), radius: 10, y: 5)
+                    Image(systemName: insight.icon)
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .symbolEffect(.bounce, value: appear)
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Conseil du jour")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Color.accentDeep)
+                    Text(insight.text)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.primary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
             }
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Conseil du jour")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(Color.accentDeep)
-                Text(insight.text)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.primary)
-                    .fixedSize(horizontal: false, vertical: true)
+
+            // Apprentissage : l'avis re-pondère ce type de conseil pour la suite.
+            if let feedback {
+                Label(feedback ? "Noté. Le coach t'en proposera plus comme ça."
+                               : "Compris. Le coach évitera ce genre de conseil.",
+                      systemImage: feedback ? "checkmark.circle.fill" : "hand.thumbsdown.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .transition(.opacity)
+            } else if !memory.todayFeedbackGiven {
+                HStack(spacing: Theme.Spacing.sm) {
+                    Text("Ce conseil t'aide ?").font(.caption2).foregroundStyle(.secondary)
+                    Spacer(minLength: 0)
+                    feedbackButton(helpful: true, icon: "hand.thumbsup.fill")
+                    feedbackButton(helpful: false, icon: "hand.thumbsdown")
+                }
             }
-            Spacer(minLength: 0)
         }
         .padding(Theme.Spacing.lg)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -33,6 +56,21 @@ struct DailyInsightCard: View {
         .opacity(appear ? 1 : 0)
         .offset(y: appear ? 0 : 12)
         .onAppear { withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) { appear = true } }
+    }
+
+    private func feedbackButton(helpful: Bool, icon: String) -> some View {
+        Button {
+            memory.reinforce(insight.tag, helpful: helpful)
+            withAnimation(.spring(response: 0.3)) { feedback = helpful }
+        } label: {
+            Image(systemName: icon)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(helpful ? Color.accentDeep : .secondary)
+                .frame(width: 32, height: 32)
+                .background(Circle().fill(Color.brandAccent.opacity(0.12)))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(helpful ? "Conseil utile" : "Conseil inutile")
     }
 }
 

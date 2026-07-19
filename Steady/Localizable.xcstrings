@@ -4862,6 +4862,28 @@
         }
       }
     },
+    "Ce conseil t'aide ?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Is this tip helpful?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Te ayuda este consejo?"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este conselho ajuda?"
+          }
+        }
+      }
+    },
     "Ce message contient des propos offensants. Steady applique une tolérance zéro.": {
       "localizations": {
         "en": {
@@ -5650,6 +5672,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Descobre porque desistes"
+          }
+        }
+      }
+    },
+    "Compris. Le coach évitera ce genre de conseil.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Got it. Your coach will avoid this kind of tip."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entendido. Tu coach evitará este tipo de consejo."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entendido. O teu coach vai evitar este tipo de conselho."
           }
         }
       }
@@ -13185,6 +13229,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Notificações"
+          }
+        }
+      }
+    },
+    "Noté. Le coach t'en proposera plus comme ça.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noted. Your coach will suggest more like this."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anotado. Tu coach te propondrá más así."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anotado. O teu coach vai propor mais assim."
           }
         }
       }
