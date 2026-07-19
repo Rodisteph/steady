@@ -17,6 +17,11 @@ struct JournalView: View {
                     if entries.isEmpty {
                         ScrollView { emptyState }
                     } else {
+                        if entries.count >= 3 {
+                            JournalInsightHeader(entries: entries)
+                                .padding(.horizontal, 16)
+                                .padding(.bottom, Theme.Spacing.sm)
+                        }
                         List {
                             ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
                                 Button { editingEntry = entry } label: {
@@ -93,6 +98,90 @@ struct JournalView: View {
         .padding(Theme.Spacing.xl)
         .frame(maxWidth: .infinity)
         .padding(.top, 60)
+    }
+}
+
+// MARK: - En-tête d'insights (série d'écriture + humeur récente)
+
+/// Un coup d'œil sur son journal : combien de jours d'affilée on écrit, combien
+/// de notes ce mois-ci, et l'humeur des dernières notes. Rend l'historique
+/// parlant sans rien envoyer nulle part (100 % local).
+struct JournalInsightHeader: View {
+    let entries: [JournalEntry]
+    private let cal = Calendar.current
+
+    /// Jours consécutifs avec au moins une note (tolère de démarrer hier).
+    private var writingStreak: Int {
+        let days = Set(entries.map { cal.startOfDay(for: $0.date) })
+        var day = cal.startOfDay(for: Date())
+        if !days.contains(day) {
+            day = cal.date(byAdding: .day, value: -1, to: day) ?? day
+        }
+        var streak = 0
+        while days.contains(day) {
+            streak += 1
+            guard let prev = cal.date(byAdding: .day, value: -1, to: day) else { break }
+            day = prev
+        }
+        return streak
+    }
+
+    private var monthCount: Int {
+        entries.filter { cal.isDate($0.date, equalTo: Date(), toGranularity: .month) }.count
+    }
+
+    /// Emojis des 7 dernières notes ayant une humeur (les plus récentes d'abord).
+    private var recentMoods: [String] {
+        entries.prefix(12).compactMap { $0.mood.flatMap { Mood(rawValue: $0)?.emoji } }.prefix(7).map { $0 }
+    }
+
+    private var averageMood: Mood? {
+        let values = entries.prefix(7).compactMap { $0.mood }
+        guard !values.isEmpty else { return nil }
+        return Mood(rawValue: Int((Double(values.reduce(0, +)) / Double(values.count)).rounded()))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.md) {
+                stat("\(writingStreak)", writingStreak == 1 ? L("jour d'écriture") : L("jours d'écriture"), "flame.fill")
+                divider
+                stat("\(monthCount)", L("ce mois-ci"), "book.fill")
+                if let mood = averageMood {
+                    divider
+                    VStack(spacing: 3) {
+                        Text(mood.emoji).font(.title3)
+                        Text("humeur récente").font(.caption2).foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+            if !recentMoods.isEmpty {
+                HStack(spacing: 4) {
+                    ForEach(Array(recentMoods.reversed().enumerated()), id: \.offset) { _, e in
+                        Text(e).font(.caption)
+                    }
+                    Spacer(minLength: 0)
+                }
+                .opacity(0.8)
+            }
+        }
+        .padding(Theme.Spacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .steadyCard()
+    }
+
+    private func stat(_ value: String, _ label: String, _ icon: String) -> some View {
+        VStack(spacing: 3) {
+            Text(value).font(.title3.weight(.bold)).foregroundStyle(Color.accentDeep)
+            Text(label).font(.caption2).foregroundStyle(.secondary)
+                .lineLimit(1).minimumScaleFactor(0.7)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var divider: some View {
+        Rectangle().fill(Color.secondary.opacity(0.15)).frame(width: 1, height: 32)
     }
 }
 

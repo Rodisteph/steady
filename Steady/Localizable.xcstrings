@@ -22793,6 +22793,28 @@
         }
       }
     },
+    "ce mois-ci": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "this month"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "este mes"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "este mês"
+          }
+        }
+      }
+    },
     "cette semaine": {
       "extractionState": "stale",
       "localizations": {
@@ -22838,6 +22860,50 @@
         }
       }
     },
+    "humeur récente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "recent mood"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ánimo reciente"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "humor recente"
+          }
+        }
+      }
+    },
+    "jour d'écriture": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "day journaling"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "día escribiendo"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dia de escrita"
+          }
+        }
+      }
+    },
     "jours": {
       "localizations": {
         "en": {
@@ -22878,6 +22944,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "dias ativos"
+          }
+        }
+      }
+    },
+    "jours d'écriture": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "days journaling"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "días escribiendo"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dias de escrita"
           }
         }
       }
