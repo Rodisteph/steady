@@ -50,22 +50,34 @@ struct SteadyApp: App {
 
         // 1) iCloud (CloudKit) — l'objectif : plus jamais de perte de données.
         if let container = try? ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema, cloudKitDatabase: .automatic)) {
+            recordStorageMode("icloud")
             return container
         }
 
         // 2) Repli local (pas de compte iCloud, etc.) — l'app fonctionne quand même.
         if let container = try? ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema, cloudKitDatabase: .none)) {
+            recordStorageMode("local")
             return container
         }
 
         // 3) Ancien store incompatible : on le réinitialise pour ne jamais bloquer.
         deleteStoreFiles()
         if let container = try? ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema, cloudKitDatabase: .none)) {
+            recordStorageMode("local")
             return container
         }
 
         // 4) Dernier recours : en mémoire.
+        recordStorageMode("memory")
         return try! ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema, isStoredInMemoryOnly: true))
+    }
+
+    /// Mémorise le mode de stockage réellement actif, pour l'afficher dans les
+    /// Réglages. Un repli silencieux sur « local » = pas de restauration après
+    /// réinstallation → l'utilisateur doit pouvoir le voir.
+    private static func recordStorageMode(_ mode: String) {
+        UserDefaults.standard.set(mode, forKey: "steady_storage_mode")
+        print("💾 Stockage Steady : \(mode)")
     }
 
     /// Supprime le fichier de base SwiftData par défaut (et ses annexes WAL/SHM).

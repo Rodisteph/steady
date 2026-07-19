@@ -15,6 +15,7 @@ struct SettingsView: View {
                 VStack(spacing: Theme.Spacing.lg) {
                     premiumBanner
                     notificationsSection
+                    syncSection
                     themeSection
                     languageSection
                     aboutSection
@@ -221,6 +222,39 @@ struct SettingsView: View {
     }
 
     // MARK: - À propos
+
+    // MARK: - Sauvegarde iCloud
+    //
+    // Rend visible un repli silencieux : si CloudKit n'est pas actif, tes données
+    // ne sont PAS restaurées après une réinstallation. Mieux vaut le voir ici.
+    private var syncSection: some View {
+        let mode = UserDefaults.standard.string(forKey: "steady_storage_mode") ?? "local"
+        let isCloud = mode == "icloud"
+        return VStack(alignment: .leading, spacing: 0) {
+            sectionHeader("Sauvegarde")
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                HStack {
+                    Label {
+                        Text("Sauvegarde iCloud").foregroundStyle(.primary)
+                    } icon: {
+                        rowIcon(isCloud ? "checkmark.icloud.fill" : "exclamationmark.icloud.fill",
+                                tint: isCloud ? .green : .orange)
+                    }
+                    Spacer()
+                    Text(isCloud ? "Activée" : "Locale")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(isCloud ? .green : .orange)
+                }
+                Text(isCloud
+                     ? "Tes habitudes, défis et historique sont sauvegardés dans ton iCloud privé et reviennent après une réinstallation."
+                     : "Tes données sont seulement sur cet appareil. Active iCloud (Réglages iOS puis ton nom puis iCloud) et connecte-toi au même compte pour les retrouver après une réinstallation.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(Theme.Spacing.lg)
+            .steadyCard()
+        }
+    }
 
     private var aboutSection: some View {
         VStack(alignment: .leading, spacing: 0) {

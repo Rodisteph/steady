@@ -2565,6 +2565,28 @@
         }
       }
     },
+    "Activée": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activada"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ativada"
+          }
+        }
+      }
+    },
     "Adulte niveau expert": {
       "localizations": {
         "en": {
@@ -11263,6 +11285,28 @@
         }
       }
     },
+    "Locale": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local"
+          }
+        }
+      }
+    },
     "Lumière du jour 10 min": {
       "localizations": {
         "en": {
@@ -17835,6 +17879,50 @@
         }
       }
     },
+    "Sauvegarde": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia de seguridad"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cópia de segurança"
+          }
+        }
+      }
+    },
+    "Sauvegarde iCloud": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud backup"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia iCloud"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cópia iCloud"
+          }
+        }
+      }
+    },
     "Se coucher tôt": {
       "localizations": {
         "en": {
@@ -19615,6 +19703,28 @@
         }
       }
     },
+    "Tes données sont seulement sur cet appareil. Active iCloud (Réglages iOS puis ton nom puis iCloud) et connecte-toi au même compte pour les retrouver après une réinstallation.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your data is only on this device. Turn on iCloud (iOS Settings, your name, iCloud) and sign in to the same account to get it back after a reinstall."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus datos solo están en este dispositivo. Activa iCloud (Ajustes iOS, tu nombre, iCloud) e inicia sesión con la misma cuenta para recuperarlos tras reinstalar."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os teus dados estão só neste aparelho. Ativa o iCloud (Ajustes iOS, o teu nome, iCloud) e entra na mesma conta para os recuperar após reinstalar."
+          }
+        }
+      }
+    },
     "Tes défis": {
       "localizations": {
         "en": {
@@ -19655,6 +19765,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Os teus hábitos validam-se sozinhos"
+          }
+        }
+      }
+    },
+    "Tes habitudes, défis et historique sont sauvegardés dans ton iCloud privé et reviennent après une réinstallation.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your habits, challenges and history are saved to your private iCloud and come back after a reinstall."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus hábitos, retos e historial se guardan en tu iCloud privado y vuelven tras reinstalar."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os teus hábitos, desafios e histórico ficam no teu iCloud privado e voltam após reinstalar."
           }
         }
       }
