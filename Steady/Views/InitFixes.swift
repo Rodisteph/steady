@@ -2,28 +2,23 @@ import SwiftUI
 
 // MARK: - Initialiseurs publics (corrige « initializer is inaccessible due to 'private' »)
 //
-// En Swift, dès qu'une struct possède une propriété `private`, son initialiseur
-// automatique (« memberwise ») devient privé — et les autres fichiers ne peuvent
-// alors plus construire la vue. Plusieurs vues ici utilisent le motif
-// `private var manager = Manager.shared`, ce qui déclenche exactement ce cas.
+// En Swift, dès qu'une struct possède une propriété `private` avec valeur par
+// défaut (ex. `private var manager = Manager.shared`, ou un @State/@Query/@Environment
+// privé), son initialiseur automatique (« memberwise ») devient privé — et les
+// autres fichiers ne peuvent alors plus construire la vue.
 //
-// On redonne à chaque vue concernée une « porte d'entrée » interne explicite,
-// SANS toucher au reste de leur code. Écrire ces init dans une *extension*
-// (plutôt que dans la struct d'origine) préserve l'initialiseur memberwise
-// existant — c'est le motif recommandé par Swift.
+// On redonne ici une « porte d'entrée » interne explicite aux vues concernées,
+// dans une extension, SANS toucher au reste de leur code.
 //
-// Note : les propriétés @State / @Query / @Environment ont toutes une valeur
-// par défaut, donc chaque init n'a besoin d'affecter que la propriété passée.
+// ⚠️ Ce fichier ne peut traiter QUE les vues dont la propriété passée est un
+// stockage accessible (ex. `var store`, `var isPremium`). Pour une vue avec un
+// @Binding, le stockage `_selection` est privé et n'est visible que dans le
+// fichier de la vue : son init est donc placé directement dans ce fichier-là
+// (voir IconPickerView.swift).
 
 extension MainView {
     init(store: HabitStore) {
         self.store = store
-    }
-}
-
-extension IconPickerView {
-    init(selection: Binding<String>) {
-        self._selection = selection
     }
 }
 

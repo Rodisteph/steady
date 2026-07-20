@@ -12,6 +12,15 @@ struct IconPickerView: View {
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: Theme.Spacing.sm), count: 5)
 
+    /// Initialiseur explicite : sans lui, les propriétés `private` de cette vue
+    /// rendent l'initialiseur automatique privé, et les autres fichiers ne
+    /// peuvent plus construire le sélecteur. Il doit vivre ICI (même fichier)
+    /// car `_selection` (le stockage du @Binding) est privé. Être dans le corps
+    /// de la struct remplace l'init memberwise — donc un seul init, sans ambiguïté.
+    init(selection: Binding<String>) {
+        self._selection = selection
+    }
+
     private var symbols: [String] {
         let trimmed = search.trimmingCharacters(in: .whitespaces).lowercased()
         if !trimmed.isEmpty {
